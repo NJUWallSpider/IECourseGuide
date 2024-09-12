@@ -1,3 +1,81 @@
-site_name: My Docs
+site_name: NJU IE学习指南
+site_author: NJUWallSpider
+site_description: >-
+  NJU IE学习指南
+
+repo_name: IECourseGuide
+repo_url: https://github.com/NJUWallSpider/IECourseGuide
+copyright: Copyright &copy; 2024-present <a href="https://github.com/NJUWallSpider" target="_blank" rel="noopener noreferrer">WallSpider</a>
+
 theme: 
   name: material
+  language: zh
+  static_templates:
+    - 404.html
+  favicon: images/favicon.ico
+  # apple-touch-icon-precomposed: images/mobile_icon.webp
+  # include_search_page: false
+  # search_index_only: true
+
+  features:
+    - header.autohide
+    - navigation.tracking
+    - navigation.top
+    - search.highlight
+    - search.share
+    - search.suggest
+    - content.code.annotate
+
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: deep purple
+      accent: light blue
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: cyan
+      accent: deep purple
+      toggle:
+        icon: material/weather-night
+        name: Switch to light mode
+
+  font:
+    text: Roboto Slab
+    code: Roboto Mono
+  icon:
+    repo: fontawesome/brands/github
+
+
+  custom_dir: overrides
+
+markdown_extensions:
+  - attr_list
+  - md_in_html
+  - footnotes
+
+plugins:
+
+  - search:
+      lang:
+        - zh
+        - en
+  - git-revision-date-localized:
+  - minify:
+      minify_html: true
+  
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/NJUWallSpider/IECourseGuide
+  analytics:
+    provider: google
+    property: G-KJB4RXSKZG
+  
+  nav:
+    - 前言: "index.md"
+
+
+
