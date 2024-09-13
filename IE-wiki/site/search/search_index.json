@@ -1,1 +1,1 @@
-{"config":{"lang":["en"],"separator":"[\\s\\-]+","pipeline":["stopWordFilter"]},"docs":[{"location":"","title":"Welcome to IECourseGuide","text":"<p>This is a course guide for IE students in Nanjing University.</p>"}]}
+{"config":{"lang":["zh","en"],"separator":"[\\s\\u200b\\u3000\\-\u3001\u3002\uff0c\uff0e\uff1f\uff01\uff1b]+","pipeline":["stemmer"]},"docs":[{"location":"","title":"\u524d\u8a00","text":"<p>This is a course guide for IE students in Nanjing University.</p>"}]}
