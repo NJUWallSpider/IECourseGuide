@@ -1,3 +1,7 @@
+<figure markdown>
+  ![Image title](./images/mobile_icon.webp){ width="300" }
+</figure>
+
 # 前言
 这是一本写给南大IE学子的学习指南，同时穿插我对IE学习的思考，如果这本书能对你们的大学学习生涯
 有哪怕一丝一毫的帮助，都是对我极大的鼓励和慰藉。
