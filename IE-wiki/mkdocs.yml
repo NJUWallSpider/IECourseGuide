@@ -9,6 +9,7 @@ copyright: Copyright &copy; 2024-present <a href="https://github.com/NJUWallSpid
 
 theme: 
   name: material
+  custom_dir: overrides
   language: zh
   static_templates:
     - 404.html
@@ -30,7 +31,7 @@ theme:
     - media: "(prefers-color-scheme: light)"
       scheme: default
       primary: deep purple
-      accent: light blue
+      accent: indigo
       toggle:
         icon: material/weather-sunny
         name: Switch to dark mode
@@ -47,9 +48,6 @@ theme:
     code: Roboto Mono
   icon:
     repo: fontawesome/brands/github
-
-
-  custom_dir: overrides
 
 markdown_extensions:
   - attr_list
