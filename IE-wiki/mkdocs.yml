@@ -9,14 +9,11 @@ copyright: Copyright &copy; 2024-present <a href="https://github.com/NJUWallSpid
 
 theme: 
   name: material
-  custom_dir: overrides
   language: zh
   static_templates:
     - 404.html
+  custom_dir: overrides
   favicon: images/favicon.ico
-  # apple-touch-icon-precomposed: images/mobile_icon.webp
-  # include_search_page: false
-  # search_index_only: true
 
   features:
     - header.autohide
@@ -28,20 +25,7 @@ theme:
     - content.code.annotate
 
   palette:
-    - media: "(prefers-color-scheme: light)"
-      scheme: default
-      primary: deep purple
-      accent: indigo
-      toggle:
-        icon: material/weather-sunny
-        name: Switch to dark mode
-    - media: "(prefers-color-scheme: dark)"
-      scheme: slate
-      primary: cyan
-      accent: deep purple
-      toggle:
-        icon: material/weather-night
-        name: Switch to light mode
+    - scheme: default
 
   font:
     text: Roboto Slab
@@ -71,9 +55,37 @@ extra:
   analytics:
     provider: google
     property: G-KJB4RXSKZG
+
+extra_css:
+  - css/custom.css
   
-  nav:
-    - 前言: "index.md"
+nav:
+  - 前言: "index.md"
+  # - 思政军体课:
+  #   - political/index.md
+  #   - 形势与政策 Ⅰ: political/situation_policy1/index.md
+  #   - 思想道德与法治: political/morality_law/index.md
+  #   - 中国近现代史纲要（H）: political/modern_history/index.md
+  #   - 马克思主义基本原理（H）: political/marxism_basic/index.md
+  #   - 毛泽东思想和中国特色社会主义理论体系概论（H）: political/mao_thought/index.md
+  #   - 习近平新时代中国特色社会主义思想概论: political/xi_thought/index.md
+  #   - 形势与政策 Ⅱ: political/situation_policy2/index.md
+  #   - 军事理论: political/military_theory/index.md
+  #   - 通识选修课:
+  #   - general/index.md
+  #   - 通识核心课: general/core.md
+  #   - 通识选修课: general/elective.md
+  #   - 其他选修课: general/others.md
+  - 数理基础课:
+    - 数理基础课/index.md
+    - 微积分Ⅰ: 数理基础课/微积分1/index.md
+  #   - 线性代数 Ⅱ（H）: math_phys/linear_algebra2/index.md
+  #   - 数学分析（甲）Ⅰ（H）: math_phys/math_analysis1/index.md
+  #   - 数学分析（甲）Ⅱ（H）: math_phys/math_analysis2/index.md
+  - 专业核心课:
+    - 专业核心课/index.md
+    - 运筹学Ⅰ: 专业核心课/运筹学1/index.md
+  # - 专业基础课:
 
 
 
