@@ -1,0 +1,131 @@
+/* 该配置文件来自https://github.com/ZJU-Turing/TuringCourses/blob/master/docs/css/custom.css */
+
+/*当屏幕宽度大于等于 960px 时，将 html 元素的 font-size 设置为 137.5%，放大字体。
+当屏幕宽度大于 100em 和 125em 时（大屏幕设备），同样将 html 的 font-size 设置为 137.5%。
+这里的 em 基于浏览器的默认字体大小，常用于响应式设计。*/
+@media screen and (min-width: 960px) {
+  html {
+    font-size: 137.5%;
+  }
+}
+
+@media screen and (min-width: 100em) {
+  html {
+    font-size: 137.5%;
+  }
+}
+  
+@media screen and (min-width: 125em) {
+  html {
+    font-size: 137.5%;
+  }
+}
+
+/*设置一级标题（h1）、二级标题（h2）的字体粗细为 600。
+设置三级标题（h3）的字体粗细为 500。
+将 h1 至 h4 的字母间距（letter-spacing）设为 0，避免文字之间过大的空隙。*/
+.md-typeset h1, .md-typeset h2 {
+  font-weight: 600;
+}
+  
+.md-typeset h3 {
+  font-weight: 500;
+}
+
+.md-typeset h1, .md-typeset h2, .md-typeset h3, .md-typeset h4 {
+  letter-spacing: 0;
+}
+
+/* 将 .md-typeset（文档内容部分）的默认字体大小设置为 .7rem，使其相对于根元素更小。*/
+.md-typeset {
+    font-size: .7rem;
+  }
+
+/*该规则让嵌入行内的代码（code）元素继承父元素的字体大小，而不是使用默认的固定字体大小。*/
+.md-typeset code:not(pre code) {
+    font-size: inherit;
+}
+
+/*当位于页面底部 .md-footer-meta 中的链接元素处于聚焦或悬停状态时，将其颜色设置为 rgba(255, 255, 255, 0.6)，即半透明的白色。*/
+html .md-footer-meta.md-typeset a:is(:focus,:hover) {
+  color: rgba(255,255,255,0.6);
+}
+
+/*定义了在 default 配色方案下的各种颜色，包括：
+主要前景色 --md-primary-fg-color，默认背景色、链接颜色、页脚前景色和背景色等。
+这些变量将影响整个站点的配色风格。*/
+[data-md-color-scheme="default"] {
+    --md-primary-fg-color: #88147f;
+    --md-primary-bg-color: #FFFFFF;
+    --md-typeset-a-color: #555555;
+    --md-default-fg-color: #000000;
+    --md-footer-fg-color: #000000;
+    --md-footer-bg-color: #EFEFEF;
+    --md-footer-bg-color--dark: #88147f;
+    --md-footer-fg-color--light: #FFFFFF;
+    --md-footer-fg-color--lighter: #FFFFFF;
+    --md-code-bg-color: #fafafa;
+}
+  
+/*定义了 slate 配色方案，主要使用深色背景和浅色前景（例如黑色背景、白色文本），适合夜间模式使用。*/
+[data-md-color-scheme="slate"] {
+    --md-default-bg-color: #161616;
+    --md-default-fg-color: rgba(255,255,255);
+    --md-primary-fg-color: rgb(0, 63, 136);
+    --md-code-bg-color: #1d1d1d;
+}
+
+/*为 Katex 渲染的数学公式文本设置文本描边宽度，以确保公式在高分辨率显示器上有更好的可读性。*/
+.katex {
+    -webkit-text-stroke-width: 0.3px;
+}
+
+/*这些规则用于设置 .reference 类下的有序列表（ol），使列表项前的数字标记自定义为 [1]、[2] 的形式，并调整其样式和间距。*/
+.reference ol {
+    counter-reset: li;
+}
+  
+.reference li {
+    counter-increment: li;
+}
+
+/*这些规则调整了 .general 类的提示框的背景颜色和边框，使其更加柔和，适合用于各种文档中的提示框。*/
+.md-typeset .admonition.general,
+.md-typeset details.general {
+  background-color: hsla(var(--md-hue),0%,100%,0.025);
+}
+
+/*定义了徽章（badge）的样式，使其显示为小的块状元素，具有紧凑的内边距和较粗的字体。*/
+.badge {
+    display: inline-block;
+    padding: 0.2em 0.4em;
+    font-size: 85%;
+    font-weight: 700;
+}
+
+/*当屏幕宽度小于 59.9375em 时，导航菜单背景色会使用 --md-primary-fg-color 变量指定的颜色，这通常用于响应式设计中的小屏幕设备。*/
+@media screen and (max-width: 59.9375em) {
+    .md-nav__source {
+      background-color: var(--md-primary-fg-color);
+    }
+}
+
+/*将版权文本的字体大小设置为 0.55rem，通常用于版权声明或小字信息。*/
+.md-copyright {
+    font-size: .55rem;
+}
+  
+  
+  
+
+  
+
+
+  
+  
+
+
+  
+  
+  
+  
