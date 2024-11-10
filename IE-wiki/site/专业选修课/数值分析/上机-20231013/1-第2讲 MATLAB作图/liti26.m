@@ -1,0 +1,1 @@
+ezplot('sin(3*t)*cos(t)','sin(3*t)*sin(t)',[0,pi])

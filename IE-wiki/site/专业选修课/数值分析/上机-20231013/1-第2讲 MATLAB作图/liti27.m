@@ -1,0 +1,1 @@
+fplot('abs(exp(-j*x*(0:9))*ones(10,1))',[0,2*pi])
