@@ -13,22 +13,22 @@ abbrs:
 本课程包含优化的初级内容，具体的授课内容为与相关资源如下：
 
 
-| Lecture          | 内容                      | 课件                               | 作业                          |
-|------------------|--------------------------|------------------------------------|-------------------------------|
-| **lec1**         | 运筹学的发展与主要内容     | [OR-Intro](OR-Intro-2024.pdf)      | 无                            |
-| **lec2**         | 线性规划初步               | [OR-LP-Intro](OR-Lec-1-2024.pdf)   | 无                            |
-| **lec3**         | LP基本定理、单纯形法Ⅰ    | [OR-Simplex1](OR-Lec-2-2024.pdf)   | 无                            |
-| **lec4**         | 单纯形法Ⅱ                | [OR-Simplex2](OR-Lec-3-2024.pdf)   | [HW1_24](OR-HW1.pdf) [答案_24](OR-HW1-24-25-ans.pdf) |
-| **lec5**         | LP的应用                  | [OR-Application](OR-Lec-4-2024.pdf)| 无                            |
-| **lec6**         | 对偶理论                  | [OR-Duality](OR-Lec-5-2024.pdf)    | [HW2_24](OR-HW2.pdf) [答案_23](OR-HW2-23-24-ans.pdf) |
-| **lec7**         | 对偶单纯形法、目标规划    | [OR-DualSimplex](OR-Lec-6-2024.pdf)| 无                            |
-| **lec8**         | 修正单纯形法、列生成算法   | [OR-Advanced](OR-Lec-7-2024.pdf)   | [HW3_23](OR-HW3.pdf) [答案_23](OR-HW3-23-24-ans.pdf) |
-| **lec9**         | 运输问题                   | [OR-Trans](OR-Lec-8-2023.pdf)      | 无                            |
-| **lec10**        | 待补充                     |                                    |                               |
-| **lec11, lec12** | 非线性规划                 | [OR-NLP](OR-Lec-11-12-2023.pdf)    | [HW4-23](OR-HW4-23-24.pdf) [答案_23](OR-HW4-23-24-ans.pdf) |
-| **lec13, lec14** | 图与网络Ⅰ                 | [OR-GraphFlow1](OR-Lec-13-14-2023.pdf)| [HW5-23](OR-HW5-23-24.pdf) [答案_23](OR-HW5-23-24-ans.pdf) |
-| **lec15**        | 图与网络Ⅱ                 | [OR-GraphFlow2](OR-Lec-15-2023.pdf)| [HW6-23](OR-HW6-23-24.pdf) [答案_23](OR-HW6-23-24-ans.pdf) |
-| **lec16**        | 期末复习                  | [OR-Review](OR-Review-2023.pdf)    | 无                            |
+| 内容                      | 课件                               | 作业                          |
+|--------------------------|------------------------------------|-------------------------------|
+| 运筹学的发展与主要内容     | [OR-Intro](OR-Intro-2024.pdf)      | 无                            |
+| 线性规划初步               | [OR-LP-Intro](OR-Lec-1-2024.pdf)   | 无                            |
+| LP基本定理、单纯形法Ⅰ    | [OR-Simplex1](OR-Lec-2-2024.pdf)   | 无                            |
+| 单纯形法Ⅱ                | [OR-Simplex2](OR-Lec-3-2024.pdf)   | [HW1_24](OR-HW1.pdf) [答案_24](OR-HW1-24-25-ans.pdf) |
+| LP的应用                  | [OR-Application](OR-Lec-4-2024.pdf)| 无                            |
+| 对偶理论                  | [OR-Duality](OR-Lec-5-2024.pdf)    | [HW2_24](OR-HW2.pdf) [答案_23](OR-HW2-24-25-ans.pdf) |
+| 对偶单纯形法、目标规划    | [OR-DualSimplex](OR-Lec-6-2024.pdf)| 无                            |
+| 修正单纯形法、列生成算法   | [OR-Advanced](OR-Lec-7-2024.pdf)   | [HW3_23](OR-HW3.pdf) [答案_23](OR-HW3-24-25-ans.pdf) |
+| 运输问题                   | [OR-Trans](OR-Lec-8-2024.pdf)      | 无                            |
+| 整数规划                    | [OR-IP](OR-Lec-10-2024.pdf)                                  |                               |
+| 非线性规划                 | [OR-NLP](OR-Lec-11-12-2024.pdf)    | [HW4-23](OR-HW4.pdf) [答案_23](OR-HW4-24-25-ans.pdf) |
+| 图与网络Ⅰ                 | [OR-GraphFlow1](OR-Lec-13-14-2024.pdf)| [HW5-23](OR-HW54.pdf) [答案_23](OR-HW5-24-25-ans.pdf) |
+| 图与网络Ⅱ                 | [OR-GraphFlow2](OR-Lec-15-2024.pdf)| [HW6-23](OR-HW6.pdf) [答案_23](OR-HW6-24-25-ans.pdf) |
+| 期末复习                  | [OR-Review](OR-Review-2023.pdf)    | 无                            |
 
 
 ## 任课教师
@@ -38,7 +38,7 @@ abbrs:
 出勤（5%）+ 作业（10%）+ 课程报告（15%）+ 期中考试（20%）+ 期末考试（50%）
 
 ## 推荐教材
-运筹学既有严格的数学理论，又有宽广的应用场景，下面推荐的书也各有侧重。
+本课程没有必需的教材，PPT可以满足全部需要。运筹学既有严格的数学理论，又有宽广的应用场景，下面推荐的书也各有侧重。
 
 1. [Operations Research：Applications and Algorithms](Operations_Research_Applications_and_Algorithms.pdf) by Wayne L. Winston 
 这本书非常厚，涵盖了线性规划、整数规划、非线性规划、决策论、博弈论、储存论、排队论、动态规划等诸多内容，但相应的内容深度也会有所下降。
