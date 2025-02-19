@@ -37,6 +37,7 @@ markdown_extensions:
   - attr_list
   - md_in_html
   - footnotes
+  - pymdownx.superfences
 
 plugins:
 
@@ -61,6 +62,7 @@ extra_css:
   
 nav:
   - 前言: "index.md"
+  - 贡献指南: "贡献指南/contribution_tutorial.md"
   # - 思政军体课:
   #   - political/index.md
   #   - 形势与政策 Ⅰ: political/situation_policy1/index.md
@@ -88,6 +90,10 @@ nav:
     - 数据结构与算法设计: 专业核心课/数据结构与算法设计/index.md
     - 概率论: 专业核心课/概率论/index.md
     - 管理学: 专业核心课/管理学/index.md
+    - 应用统计Ⅰ: 专业核心课/应用统计Ⅰ/index.md
+    - 运筹学Ⅱ: 专业核心课/运筹学Ⅱ/index.md
+    - 离散优化算法: 专业核心课/离散优化算法/index.md
+    - 基础工业工程: 专业核心课/基础工业工程/index.md
   - 专业选修课:
     - 数值分析: 专业选修课/数值分析/index.md
   # - 专业基础课:

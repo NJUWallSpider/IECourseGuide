@@ -1,5 +1,5 @@
 <figure markdown>
-  ![Image title](./images/mobile_icon.webp){ width="300" }
+  ![Image title](../images/mobile_icon.webp){ width="300" }
 </figure>
 
 # 前言
