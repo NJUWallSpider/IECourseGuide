@@ -1,12 +1,12 @@
 # NJU IE Course Guide
 
-本网站灵感直接来源于[CS自学指南](https://csdiy.wiki/)，目的是为南京大学工业工程系 (**I**ndustrial **E**ngeering) 的学子提供全方位的学习支持，其中大一的基础课内容也适合绝大多数理工科。
+[本网站](https://njuwallspider.github.io/IECourseGuide/) 灵感直接来源于[CS自学指南](https://csdiy.wiki/)，目的是为南京大学工业工程系 (**I**ndustrial **E**ngineering) 的学子提供全方位的学习支持，其中大一的基础课内容也适合绝大多数理工科。
 
 本书内容包括：
 
 - 南京大学的工业工程（IE）在干什么。
 
-- 学习 IE 要用到的基本工具：如git、latex、gurobi等等。
+- 学习 IE 要用到的基本工具：如Git、LaTex、Gurobi等等。
 
 - **南大IE所有课程资料汇总**：把NJUIE所有课程资源分门别类进行汇总，包含学习内容、任课老师、课程教材、课程学习建议
 、往年卷、补充资料等，供大家学习参考。
