@@ -81,6 +81,8 @@ nav:
   - 数理基础课:
     - 数理基础课/index.md
     - 微积分Ⅰ: 数理基础课/微积分1/index.md
+    - 微积分ⅠⅠ: 数理基础课/微积分2/index.md
+    - 线性代数: 数理基础课/线性代数/index.md
   #   - 线性代数 Ⅱ（H）: math_phys/linear_algebra2/index.md
   #   - 数学分析（甲）Ⅰ（H）: math_phys/math_analysis1/index.md
   #   - 数学分析（甲）Ⅱ（H）: math_phys/math_analysis2/index.md
