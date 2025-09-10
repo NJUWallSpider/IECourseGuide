@@ -33,7 +33,7 @@
     ```
 2. 安装 python 依赖（mkdocs 以及 material）
     ```shell
-    $ pip install --upgrade mkdocs mkdocs-material mkdocs-material-extensions mkdocs-heti-plugin
+    $ pip install --upgrade mkdocs mkdocs-material mkdocs-material-extensions mkdocs-heti-plugin mkdocs-git-revision-date-localized-plugin mkdocs-minify-plugin
     ```
 3. 启动 mkdocs 本地服务
     ```shell
