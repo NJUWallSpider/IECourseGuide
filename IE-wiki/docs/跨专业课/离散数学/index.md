@@ -42,6 +42,12 @@ abbrs:
 | 树                       | [树](https://box.nju.edu.cn/seafhttp/f/9c96c94a31d543ada104/?op=view) |
 | 根树与二叉树             | [根树与二叉树](https://box.nju.edu.cn/seafhttp/f/c02b42e456fa43469f51/?op=view) |
 
+## 往年卷
+
+|年份    |      试卷|
+|--------|----------|
+|2024|[2024期末](离散24期末破碎记忆版2.pdf)|
+
 ## 任课老师
 吴楠老师
 
