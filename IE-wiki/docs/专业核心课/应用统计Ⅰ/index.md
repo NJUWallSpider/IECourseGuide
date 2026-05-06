@@ -22,6 +22,14 @@ abbrs:
 | 假设检验Ⅱ          | [Lec 8](https://box.nju.edu.cn/f/04700db2a33f44acae1a/?dl=1)         | [Homework 3](https://box.nju.edu.cn/d/ef05b3a4e0294c9babed/)         |
 | 预测               | [Lec 9](https://box.nju.edu.cn/f/a3908a101c5a44e2b2a6/?dl=1)         | [Homework 4](https://box.nju.edu.cn/f/27e39c02cf304096a13d/?dl=1)    |
 
+## 任课教师
+
+陈彩华、徐红利老师
+
+## 历年试卷
+
+- [2025春夏应用统计期末试卷](2025应用统计期末试题（回忆版）.pdf)
+
 ## 补充资料
 
 - [2024大作业要求](https://box.nju.edu.cn/f/fa5cef101f674762904d/?dl=1)
@@ -31,7 +39,5 @@ abbrs:
 - [参考教材](https://box.nju.edu.cn/d/b2bd0e073df440a2b2f5/)
 - [Stanford Open Course -- Applied Statistics](https://box.nju.edu.cn/d/1d22d8aac4ee41899b52/)
 
-## 任课教师
 
-陈彩华、徐红利老师
 

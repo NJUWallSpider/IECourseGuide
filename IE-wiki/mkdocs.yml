@@ -13,7 +13,7 @@ theme:
   static_templates:
     - 404.html
   custom_dir: overrides
-  favicon: images/favicon.ico
+  logo: images/Favicon.png
 
   features:
     - header.autohide
@@ -62,6 +62,9 @@ extra_css:
   
 nav:
   - 前言: "index.md"
+  - 必学工具: 
+    - Git: 必学工具/Git.md
+    - Markdown: 必学工具/Markdown.md
   - 贡献指南: "贡献指南/contribution_tutorial.md"
   # - 思政军体课:
   #   - political/index.md
@@ -83,9 +86,6 @@ nav:
     - 微积分Ⅰ: 数理基础课/微积分1/index.md
     - 微积分ⅠⅠ: 数理基础课/微积分2/index.md
     - 线性代数: 数理基础课/线性代数/index.md
-  #   - 线性代数 Ⅱ（H）: math_phys/linear_algebra2/index.md
-  #   - 数学分析（甲）Ⅰ（H）: math_phys/math_analysis1/index.md
-  #   - 数学分析（甲）Ⅱ（H）: math_phys/math_analysis2/index.md
   - 专业核心课:
     - 专业核心课/index.md
     - 运筹学Ⅰ: 专业核心课/运筹学Ⅰ/index.md
@@ -96,8 +96,21 @@ nav:
     - 运筹学Ⅱ: 专业核心课/运筹学Ⅱ/index.md
     - 离散优化算法: 专业核心课/离散优化算法/index.md
     - 基础工业工程: 专业核心课/基础工业工程/index.md
+    - 人工智能: 专业核心课/人工智能/index.md
+    - 数据挖掘: 专业核心课/数据挖掘/index.md
+    - 工程经济学: 专业核心课/工程经济学/index.md
+    - 制造与服务系统分析: 专业核心课/制造与服务系统分析/index.md
   - 专业选修课:
     - 数值分析: 专业选修课/数值分析/index.md
+    - 随机过程: 专业选修课/随机过程/index.md
+  - 跨专业课:
+    - 计算机系统基础: 跨专业课/计算机系统基础/index.md
+    - 计算机网络: 跨专业课/计算机网络/index.md
+    - 数值最优化: 跨专业课/数值最优化/index.md
+    - Rust程序设计语言: 跨专业课/Rust程序设计语言/index.md
+    - 组合数学: 跨专业课/组合数学/index.md
+    - 离散数学: 跨专业课/离散数学/index.md
+    - 面向计算思维的问题求解: 跨专业课/面向计算思维的问题求解/index.md
   # - 专业基础课:
 
 
