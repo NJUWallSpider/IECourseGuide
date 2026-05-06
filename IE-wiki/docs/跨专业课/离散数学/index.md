@@ -20,27 +20,27 @@ abbrs:
 
 | 内容                     | 课件                                   | 
 | ------------------------ | -------------------------------------- | 
-| 命题逻辑初步  | [命题逻辑初步](第1讲：命题逻辑初步(2)_已压缩(1).pdf)          |
-| 命题逻辑的推理理论       | [命题逻辑的推理理论](第2讲：命题逻辑的推理理论(2)_已压缩(1).pdf)       |
-| 谓词逻辑引论  | [谓词逻辑引论](第3讲：谓词逻辑引论(2)_已压缩(1).pdf)       |
-| 证明方法概述             | [证明方法概述](第4讲：证明方法概述(1)_已压缩(1).pdf)       |
-| 集合论导引       | [集合论导引](第5讲：集合论导引(1)_已压缩(1).pdf)    |
-|二元关系               | [二元关系](第6讲：二元关系(1)_已压缩(1).pdf)        |
-| 关系的性质               | [关系的性质](第7讲：关系的性质(1)_已压缩(1).pdf) |
-| 函数                     | [函数](第8讲：函数(2)_已压缩(1).pdf) |
-| 集合的基数               | [集合的基数](第9讲：集合的基数_已压缩(1).pdf) |
-| 数学归纳法与递归结构     | [数学归纳法与递归结构](第10讲：数学归纳法与递归结构_已压缩(1).pdf) |
-| 代数系统引论             | [代数系统引论](第11讲：代数系统引论_已压缩(1).pdf) |
-| 群论导引                 | [群论导引](第12讲：群论导引_已压缩(1).pdf) |
-| 子群与群的分解           | [子群与群的分解](第13讲：子群与群的分解_已压缩(1).pdf) |
-| 循环群与群同构           | [循环群与群同构](第14讲：循环群与群同构_已压缩(1).pdf) |
-| 图论导引                 | [图论导引](第15讲：图论导引_已压缩(1).pdf) |
-| 图的连通性               | [图的连通性](第16讲：图的连通性_已压缩(1).pdf) |
-| 欧拉图与哈密顿图         | [欧拉图与哈密顿图](第17讲：欧拉图与哈密顿图_已压缩(1).pdf) |
-| 带权图与最短路           | [带权图与最短路](第18讲：带权图与最短路_已压缩(1).pdf) |
-| 二部图及其匹配           | [二部图及其匹配](第19讲：二部图及其匹配_已压缩(1).pdf) |
-| 树                       | [树](第20讲：树_已压缩(1).pdf) |
-| 根树与二叉树             | [根树与二叉树](第21讲：根树与二叉树_已压缩(1).pdf) |
+| 命题逻辑初步  | [命题逻辑初步](https://box.nju.edu.cn/seafhttp/f/40d3454f053546e0984e/?op=view)          |
+| 命题逻辑的推理理论       | [命题逻辑的推理理论](https://box.nju.edu.cn/seafhttp/f/2b73a6491c11495ea124/?op=view)       |
+| 谓词逻辑引论  | [谓词逻辑引论](https://box.nju.edu.cn/seafhttp/f/8944fd3e4c704557ae90/?op=view)       |
+| 证明方法概述             | [证明方法概述](https://box.nju.edu.cn/seafhttp/f/5bbe8a17e5c0424e9ccb/?op=view)       |
+| 集合论导引       | [集合论导引](https://box.nju.edu.cn/seafhttp/f/ddc82ab2341c449ba8e4/?op=view)    |
+|二元关系               | [二元关系](https://box.nju.edu.cn/seafhttp/f/4ac3ea3583a04dcbaa3d/?op=view)        |
+| 关系的性质               | [关系的性质](https://box.nju.edu.cn/seafhttp/f/d3eb26be52194e579a82/?op=view) |
+| 函数                     | [函数](https://box.nju.edu.cn/seafhttp/f/5c22b123551e45bda5d9/?op=view) |
+| 集合的基数               | [集合的基数](https://box.nju.edu.cn/seafhttp/f/13b30c4bba9f45ff9991/?op=view) |
+| 数学归纳法与递归结构     | [数学归纳法与递归结构](https://box.nju.edu.cn/seafhttp/f/7e3778ea6e8f410380ac/?op=view) |
+| 代数系统引论             | [代数系统引论](https://box.nju.edu.cn/seafhttp/f/40764df930284c84a80b/?op=view) |
+| 群论导引                 | [群论导引](https://box.nju.edu.cn/seafhttp/f/934211b1ce994e939aca/?op=view) |
+| 子群与群的分解           | [子群与群的分解](https://box.nju.edu.cn/seafhttp/f/09889d5999364bad99f3/?op=view) |
+| 循环群与群同构           | [循环群与群同构](https://box.nju.edu.cn/seafhttp/f/a1e7c85ec0e94f81901d/?op=view) |
+| 图论导引                 | [图论导引](https://box.nju.edu.cn/seafhttp/f/409a9cc7132b4fe6a21e/?op=view) |
+| 图的连通性               | [图的连通性](https://box.nju.edu.cn/seafhttp/f/9ac0c22c8748424c9087/?op=view) |
+| 欧拉图与哈密顿图         | [欧拉图与哈密顿图](https://box.nju.edu.cn/seafhttp/f/9fc4cb4e0eb94fc7adf4/?op=view) |
+| 带权图与最短路           | [带权图与最短路](https://box.nju.edu.cn/seafhttp/f/d4eab9eec9ca482c8576/?op=view) |
+| 二部图及其匹配           | [二部图及其匹配](https://box.nju.edu.cn/seafhttp/f/c411a6898691421cb101/?op=view) |
+| 树                       | [树](https://box.nju.edu.cn/seafhttp/f/9c96c94a31d543ada104/?op=view) |
+| 根树与二叉树             | [根树与二叉树](https://box.nju.edu.cn/seafhttp/f/c02b42e456fa43469f51/?op=view) |
 
 ## 任课老师
 吴楠老师
