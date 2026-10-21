@@ -22,7 +22,7 @@
 
 <div class="ie-home-entry">
   <p class="ie-home-entry-head">✍️ 发现错误 / 想补充资料？</p>
-  <p><strong>不用 fork、不用懂 git</strong>：在站内表单里选类型、填内容，点一下就会打开预填好的 GitHub Issue 页面，把 PDF / 图片拖进去提交即可。24 小时内机器人会给出变更预览，维护者批准后自动上线。</p>
+  <p>在站内表单里选类型、填内容，点一下就会打开预填好的 GitHub Issue 页面，把文件拖进去、点提交即可。24 小时内机器人会给出变更预览，维护者批准后自动上线。</p>
   <p><a class="ie-home-entry-btn" href="提交修改/">去提交修改 →</a><span class="ie-home-entry-alt">也可以看看<a href="贡献指南/contribution_tutorial.md">贡献指南</a>（邮箱 / Issue / PR 方式）</span></p>
 </div>
 

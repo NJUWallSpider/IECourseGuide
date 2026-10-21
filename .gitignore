@@ -5,3 +5,4 @@ IE-wiki/site-frontend/
 pip-ephem-wheel-cache-*/
 __pycache__/
 .pytest_cache/
+mkdocs_*/

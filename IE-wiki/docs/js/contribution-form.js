@@ -34,14 +34,26 @@
     displayName: 120,
     section: 120,
     newCourseName: 40,
-    urlLength: 6000
+    urlLength: 6000,
+    files: 10,
+    fileBytes: 25 * 1024 * 1024
   };
+
+  // 与 tools/submission.py 的 FORBIDDEN_ATTACHMENT_EXTENSIONS 对齐（并补充 .js/.jse/.wsh），
+  // 拒绝可执行文件、可执行脚本与可能带来 XSS 的网页类文件。
+  var FORBIDDEN_EXTENSIONS = [
+    '.exe', '.dll', '.msi', '.msp', '.bat', '.cmd', '.com', '.scr', '.pif',
+    '.ps1', '.psm1', '.vbs', '.vbe', '.wsf', '.wsh', '.js', '.jse',
+    '.hta', '.lnk', '.reg', '.jar', '.apk', '.dmg', '.pkg', '.deb', '.rpm',
+    '.app', '.iso', '.html', '.htm', '.xhtml', '.svg', '.swf'
+  ];
 
   var state = {
     kind: 'material',
     courses: [],
     coursesLoaded: false,
     fromParam: '',
+    files: [],
     lastBody: '',
     lastUrl: '',
     lastTitleOnlyUrl: ''
@@ -168,7 +180,17 @@
       title: byId('ie-title'),
       notes: byId('ie-notes'),
       displayName: byId('ie-display-name'),
-      hasFile: byId('ie-has-file'),
+      dropzone: byId('ie-dropzone'),
+      fileInput: byId('ie-file-input'),
+      fileList: byId('ie-file-list'),
+      fileRows: byId('ie-file-rows'),
+      fileTotal: byId('ie-file-total'),
+      fileCount: byId('ie-file-count'),
+      handoff: byId('ie-handoff'),
+      handoffCount: byId('ie-handoff-count'),
+      handoffList: byId('ie-handoff-list'),
+      handoffCopy: byId('ie-handoff-copy'),
+      handoffStatus: byId('ie-handoff-status'),
       section: byId('ie-section'),
       content: byId('ie-content'),
       contentLabel: byId('ie-content-label-text'),
@@ -254,6 +276,254 @@
         els.previewWrap.hidden = true;
       });
     }
+    if (els.handoffCopy) {
+      els.handoffCopy.addEventListener('click', onHandoffCopy);
+    }
+    bindDropzone();
+  }
+
+  /* ---------------- 附件：选择 / 拖拽（仅记录文件名，不上传） ---------------- */
+
+  function formatBytes(bytes) {
+    var value = Number(bytes) || 0;
+    if (value < 1024) return value + ' B';
+    if (value < 1024 * 1024) return (value / 1024).toFixed(1) + ' KB';
+    return (value / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+
+  function extOf(name) {
+    var value = String(name || '').toLowerCase();
+    var dot = value.lastIndexOf('.');
+    return dot === -1 ? '' : value.slice(dot);
+  }
+
+  function iconFor(name) {
+    var ext = extOf(name);
+    if (ext === '.pdf') return '📕';
+    if (ext === '.zip' || ext === '.rar' || ext === '.7z' || ext === '.tar' || ext === '.gz') return '🗜️';
+    if (ext === '.png' || ext === '.jpg' || ext === '.jpeg' || ext === '.gif' || ext === '.webp' || ext === '.bmp') return '🖼️';
+    if (ext === '.doc' || ext === '.docx') return '📘';
+    if (ext === '.ppt' || ext === '.pptx') return '📙';
+    if (ext === '.xls' || ext === '.xlsx' || ext === '.csv') return '📊';
+    if (ext === '.md' || ext === '.txt') return '📄';
+    return '📎';
+  }
+
+  function clearFiles() {
+    state.files = [];
+    renderFiles();
+    renderHandoff([]);
+  }
+
+  function addFiles(fileList) {
+    var rejected = [];
+    var added = 0;
+    var limitNotified = false;
+    each(fileList, function (file) {
+      if (!file) return;
+      var name = String(file.name || '未命名文件');
+      var size = Number(file.size) || 0;
+      var ext = extOf(name);
+      if (FORBIDDEN_EXTENSIONS.indexOf(ext) !== -1) {
+        rejected.push('「' + name + '」是 ' + ext + ' 类型的可执行 / 网页类文件，不能上传；请换成 PDF、图片、压缩包等普通文件。');
+        return;
+      }
+      if (size > LIMITS.fileBytes) {
+        rejected.push('「' + name + '」大小 ' + formatBytes(size) + '，超过单个文件 25MB 的上限。');
+        return;
+      }
+      if (state.files.length >= LIMITS.files) {
+        if (!limitNotified) {
+          rejected.push('一次最多选择 ' + LIMITS.files + ' 个文件，多出的文件没有加入列表。');
+          limitNotified = true;
+        }
+        return;
+      }
+      var duplicate = false;
+      state.files.forEach(function (item) {
+        if (item.name === name && item.size === size) duplicate = true;
+      });
+      if (duplicate) {
+        rejected.push('「' + name + '」已经在列表里，已自动去重。');
+        return;
+      }
+      state.files.push({ name: name, size: size });
+      added += 1;
+    });
+    renderFiles();
+    if (rejected.length) {
+      showErrors(rejected);
+      setStatus('有 ' + rejected.length + ' 个文件没有加入，请查看上方提示。', 'warn');
+    } else if (added) {
+      hideErrors();
+      setStatus('已添加 ' + added + ' 个文件；提交后请把它们拖进 GitHub 编辑框完成上传。', 'ok');
+    }
+  }
+
+  function renderFiles() {
+    if (!els.fileList || !els.fileRows) return;
+    var total = 0;
+    state.files.forEach(function (file) {
+      total += file.size;
+    });
+    els.fileList.hidden = state.files.length === 0;
+    if (els.fileTotal) els.fileTotal.textContent = '合计 ' + formatBytes(total);
+    if (els.fileCount) {
+      els.fileCount.textContent = '（' + state.files.length + ' / ' + LIMITS.files + '）';
+    }
+    els.fileRows.innerHTML = '';
+    state.files.forEach(function (file, index) {
+      var row = document.createElement('li');
+      row.className = 'ie-file-row';
+
+      var icon = document.createElement('span');
+      icon.className = 'ie-file-icon';
+      icon.setAttribute('aria-hidden', 'true');
+      icon.textContent = iconFor(file.name);
+
+      var name = document.createElement('span');
+      name.className = 'ie-file-name';
+      name.title = file.name;
+      name.textContent = file.name;
+
+      var size = document.createElement('span');
+      size.className = 'ie-file-size';
+      size.textContent = formatBytes(file.size);
+
+      var remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'ie-file-remove';
+      remove.setAttribute('data-ie-file-remove', String(index));
+      remove.setAttribute('aria-label', '移除文件 ' + file.name);
+      remove.textContent = '×';
+
+      row.appendChild(icon);
+      row.appendChild(name);
+      row.appendChild(size);
+      row.appendChild(remove);
+      els.fileRows.appendChild(row);
+    });
+  }
+
+  function bindDropzone() {
+    var zone = els.dropzone;
+    if (!zone) return;
+
+    zone.addEventListener('click', function () {
+      if (els.fileInput) els.fileInput.click();
+    });
+    zone.addEventListener('keydown', function (event) {
+      var key = event.key;
+      if (key === 'Enter' || key === ' ' || key === 'Spacebar') {
+        event.preventDefault();
+        if (els.fileInput) els.fileInput.click();
+      }
+    });
+    ['dragenter', 'dragover'].forEach(function (type) {
+      zone.addEventListener(type, function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        zone.classList.add('ie-dropzone--over');
+      });
+    });
+    ['dragleave', 'dragend'].forEach(function (type) {
+      zone.addEventListener(type, function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        zone.classList.remove('ie-dropzone--over');
+      });
+    });
+    zone.addEventListener('drop', function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      zone.classList.remove('ie-dropzone--over');
+      var transfer = event.dataTransfer;
+      if (transfer && transfer.files && transfer.files.length) {
+        addFiles(transfer.files);
+      } else {
+        setStatus('没有读到文件：请直接拖入本地文件，而不是链接或选中的文字。', 'warn');
+      }
+    });
+    if (els.fileInput) {
+      els.fileInput.addEventListener('change', function () {
+        addFiles(els.fileInput.files);
+        els.fileInput.value = '';
+      });
+    }
+    if (els.fileRows) {
+      els.fileRows.addEventListener('click', function (event) {
+        var target = event.target;
+        while (target && target !== els.fileRows) {
+          if (target.hasAttribute && target.hasAttribute('data-ie-file-remove')) {
+            var index = Number(target.getAttribute('data-ie-file-remove'));
+            if (!isNaN(index)) {
+              state.files.splice(index, 1);
+              renderFiles();
+              setStatus('已移除文件。', '');
+            }
+            return;
+          }
+          target = target.parentNode;
+        }
+      });
+    }
+    // 避免文件被拖到页面其他位置时浏览器直接打开它
+    document.addEventListener('dragover', function (event) {
+      event.preventDefault();
+    });
+    document.addEventListener('drop', function (event) {
+      if (zone.contains(event.target)) return;
+      event.preventDefault();
+    });
+  }
+
+  function renderHandoff(files) {
+    if (!els.handoff) return;
+    if (!files || !files.length) {
+      els.handoff.hidden = true;
+      return;
+    }
+    els.handoff.hidden = false;
+    if (els.handoffCount) els.handoffCount.textContent = String(files.length);
+    if (els.handoffList) {
+      els.handoffList.innerHTML = '';
+      files.forEach(function (file) {
+        var item = document.createElement('li');
+        item.textContent = file.name + '（' + formatBytes(file.size) + '）';
+        els.handoffList.appendChild(item);
+      });
+    }
+    if (els.handoffStatus) els.handoffStatus.textContent = '';
+  }
+
+  function onHandoffCopy() {
+    var lines = state.files.map(function (file) {
+      return file.name + '（' + formatBytes(file.size) + '）';
+    });
+    if (!lines.length) return;
+    copyText(lines.join('\n'))
+      .then(function () {
+        if (els.handoffStatus) els.handoffStatus.textContent = '文件清单已复制。';
+      })
+      .catch(function () {
+        if (els.handoffStatus) els.handoffStatus.textContent = '浏览器不支持自动复制，请手动选择上面的文件名。';
+      });
+  }
+
+  function finishSubmit(data) {
+    var files = data.kind === 'material' ? data.files || [] : [];
+    renderHandoff(files);
+    if (files.length) {
+      if (els.handoff && els.handoff.scrollIntoView) {
+        try {
+          els.handoff.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } catch (error) {
+          els.handoff.scrollIntoView();
+        }
+      }
+    } else {
+      scrollToAfterSubmit();
+    }
   }
 
   /* ---------------- 投稿类型切换 ---------------- */
@@ -281,6 +551,9 @@
         kind === 'new-course'
           ? '会写入新页面的「课程学习内容」小节；留空则填「（待补充）」。'
           : '≤ 20000 字，支持 Markdown。';
+    }
+    if (kind !== 'material') {
+      clearFiles();
     }
     hideErrors();
     setStatus('');
@@ -535,7 +808,8 @@
       displayName: '',
       section: '',
       content: '',
-      replacements: []
+      replacements: [],
+      files: []
     };
 
     if (!data.title) errors.push('请填写标题。');
@@ -579,10 +853,9 @@
         errors.push('课程显示名最多 ' + LIMITS.course + ' 字。');
       }
       if (kind === 'material') {
-        if (!data.links.length && !(els.hasFile && els.hasFile.checked)) {
-          errors.push(
-            '补充资料至少要有一个附件或一个外部链接：请勾选「我将在 GitHub 页面拖入附件」，或填写至少一个外部链接。'
-          );
+        data.files = state.files.slice();
+        if (!data.files.length && !data.links.length) {
+          errors.push('补充资料至少需要选择一个文件或填写一个外部链接。');
         }
         data.displayName = trim(els.displayName ? els.displayName.value : '');
         if (data.displayName.length > LIMITS.displayName) {
@@ -653,6 +926,12 @@
     lines.push('## 附件');
     lines.push('<!-- 请把文件直接拖拽到本行下方（GitHub 会自动上传），一个文件一行。单个文件不超过 25MB。 -->');
     lines.push('<!-- ie-attachments -->');
+    // 已选文件的文件名清单（后端只识别 GitHub user-attachments URL，纯文件名不会被误判为附件）
+    if (data.files && data.files.length) {
+      data.files.forEach(function (file) {
+        lines.push('- ' + file.name);
+      });
+    }
     lines.push('');
     lines.push('## 链接');
     data.links.forEach(function (link) {
@@ -740,10 +1019,10 @@
       }
       if (win) {
         setStatus(
-          '已打开 GitHub 新建 Issue 页面：把 PDF / 图片拖进编辑框，然后点 Submit new issue 提交。',
+          '已打开 GitHub 新建 Issue 页面：把文件拖进编辑框（选了附件的话见下方「文件交接」），然后点 Submit new issue 提交。',
           'ok'
         );
-        scrollToAfterSubmit();
+        finishSubmit(data);
       } else {
         showPreview(body);
         showErrors([
@@ -787,7 +1066,7 @@
         '浏览器拦截了新标签页。请点击「手动打开 GitHub 新建 Issue 页面」，并把已复制的正文粘贴进去。'
       ]);
     }
-    scrollToAfterSubmit();
+    finishSubmit(data);
   }
 
   /* ---------------- 启动 ---------------- */

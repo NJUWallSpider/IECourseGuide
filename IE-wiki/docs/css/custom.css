@@ -380,6 +380,171 @@ html .md-footer-meta.md-typeset a:is(:focus,:hover) {
     accent-color: var(--md-primary-fg-color);
 }
 
+/* ---------- 投稿页：附件选择 / 拖拽（只记录文件名，不上传） ---------- */
+.ie-dropzone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 20px 16px;
+    border: 2px dashed var(--md-default-fg-color--lightest);
+    border-radius: 8px;
+    background: var(--md-code-bg-color);
+    color: var(--md-default-fg-color);
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .15s ease, background-color .15s ease, transform .15s ease;
+}
+
+.ie-dropzone:hover,
+.ie-dropzone:focus-visible {
+    border-color: var(--md-primary-fg-color);
+    outline: none;
+}
+
+.ie-dropzone--over {
+    border-color: var(--md-primary-fg-color);
+    background: var(--md-primary-fg-color--transparent, rgba(136, 20, 127, .08));
+    transform: scale(1.01);
+}
+
+.ie-dropzone-icon {
+    font-size: 24px;
+    line-height: 1.1;
+}
+
+.ie-dropzone-title {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.ie-dropzone-sub {
+    font-size: 12px;
+    line-height: 1.4;
+    opacity: .7;
+}
+
+@media screen and (max-width: 59.9375em) {
+    .ie-dropzone {
+        padding: 16px 12px;
+    }
+}
+
+.ie-file-list {
+    margin-top: 8px;
+    border: 1px solid var(--md-default-fg-color--lightest);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.ie-file-list-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 7px 10px;
+    background: var(--md-code-bg-color);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.ie-file-rows {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.ie-file-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border-top: 1px solid var(--md-default-fg-color--lightest);
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.ie-file-icon {
+    flex: none;
+    font-size: 15px;
+    line-height: 1;
+}
+
+.ie-file-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ie-file-size {
+    flex: none;
+    opacity: .7;
+    font-variant-numeric: tabular-nums;
+}
+
+.ie-file-remove {
+    flex: none;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--md-default-fg-color);
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.ie-file-remove:hover,
+.ie-file-remove:focus-visible {
+    background: rgba(198, 40, 40, .12);
+    color: #c62828;
+    outline: none;
+}
+
+[data-md-color-scheme="slate"] .ie-file-remove:hover,
+[data-md-color-scheme="slate"] .ie-file-remove:focus-visible {
+    background: rgba(255, 138, 128, .18);
+    color: #ff8a80;
+}
+
+/* 提交成功后的「文件交接」面板 */
+.ie-handoff {
+    margin-top: 12px;
+    padding: 12px 14px;
+    border: 1px solid var(--md-primary-fg-color);
+    border-radius: 8px;
+    background: var(--md-code-bg-color);
+}
+
+.ie-handoff-title {
+    margin: 0 0 6px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.ie-handoff-desc {
+    margin: 0 0 8px;
+    font-size: 13px;
+    line-height: 1.55;
+}
+
+.ie-handoff-list {
+    margin: 0 0 8px;
+    padding-left: 1.2em;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.ie-handoff-list li {
+    word-break: break-all;
+}
+
 /* ---------- 投稿页：替换组 ---------- */
 .ie-replacements {
     display: grid;
