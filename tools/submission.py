@@ -49,10 +49,15 @@ MAX_ATTACHMENT_BYTES = 25 * 1024 * 1024  # 单个附件 ≤ 25 MB
 #: 投稿元数据标记：取最后一个匹配
 MARKER_PATTERN = re.compile(r"<!--\s*ie-contribution:v1\s*(\{.*?\})\s*-->", re.S)
 
-#: GitHub 上传附件链接（契约第 2 节，只接受这两种形式）
+#: GitHub 上传附件链接（契约第 2 节）。共有三种形式：
+#: - 图片：``https://github.com/user-attachments/assets/<uuid>``
+#: - 文件：``https://github.com/user-attachments/files/<数字 id>/<文件名>``（2025 年起 PDF 等文件使用这种）
+#: - 旧格式：``https://github.com/<owner>/<repo>/assets/<id>``
 ATTACHMENT_URL_PATTERN = re.compile(
     r"https://github\.com/(?:"
     r"user-attachments/assets/[A-Za-z0-9][A-Za-z0-9._-]*"
+    r"|"
+    r"user-attachments/files/[A-Za-z0-9][A-Za-z0-9._-]*/[A-Za-z0-9.%][A-Za-z0-9._%~+-]*"
     r"|"
     r"[A-Za-z0-9][A-Za-z0-9_.-]*/[A-Za-z0-9][A-Za-z0-9_.-]*/assets/[A-Za-z0-9][A-Za-z0-9._-]*"
     r")"
@@ -140,6 +145,8 @@ class Attachment:
     asset_id: str
     owner: str = ""
     repo: str = ""
+    #: 从 ``/files/<id>/<文件名>`` 类链接里直接解析出的文件名（下载时的兜底）
+    filename_hint: str = ""
 
     @property
     def kind(self) -> str:
@@ -159,13 +166,27 @@ def extract_attachments(body: str) -> list[Attachment]:
             continue
         seen.add(url)
         parts = url.split("/")
-        asset_id = parts[-1]
+        filename_hint = ""
         if "user-attachments" in parts:
             owner = repo = ""
+            index = parts.index("user-attachments")
+            # parts[index + 1] 是 assets / files，id 在其后一段
+            asset_id = parts[index + 2] if len(parts) > index + 2 else parts[-1]
+            if parts[index + 1] == "files" and len(parts) > index + 3:
+                filename_hint = unquote("/".join(parts[index + 3 :]))
         else:
             owner = parts[3]
             repo = parts[4]
-        result.append(Attachment(url=url, asset_id=asset_id, owner=owner, repo=repo))
+            asset_id = parts[-1]
+        result.append(
+            Attachment(
+                url=url,
+                asset_id=asset_id,
+                owner=owner,
+                repo=repo,
+                filename_hint=filename_hint,
+            )
+        )
     return result
 
 
@@ -612,7 +633,11 @@ def validate_metadata(
             errors.append(
                 {
                     "code": "EMPTY_MATERIAL",
-                    "message": "material 类型至少要提供一个 GitHub 附件或一个外部链接",
+                    "message": (
+                        "material 类型至少要提供一个 GitHub 附件或一个外部链接。"
+                        "若你在投稿页选了文件：还需要在本 Issue 正文的「附件」处把文件拖进来，"
+                        "等正文出现 user-attachments 链接后再保存/提交（本页只记录文件名，不会上传文件）。"
+                    ),
                 }
             )
         if normalized["display_name"] and len(result.attachments) > 1:

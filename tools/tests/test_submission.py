@@ -45,6 +45,8 @@ ATT1 = "https://github.com/user-attachments/assets/11111111-1111-1111-1111-11111
 ATT2 = "https://github.com/user-attachments/assets/22222222-2222-2222-2222-222222222222"
 ATT3 = "https://github.com/user-attachments/assets/33333333-3333-3333-3333-333333333333"
 REPO_ASSET = "https://github.com/NJUWallSpider/IECourseGuide/assets/12345678"
+# 2025 年起 GitHub 对 PDF 等「文件」使用 /user-attachments/files/<id>/<文件名>
+FILE_ATT = "https://github.com/user-attachments/files/33752003/Wolsey.-.Integer.Programming.pdf"
 
 
 # ---------------------------------------------------------------------------
@@ -933,6 +935,40 @@ def test_extract_attachments_order_and_forms():
     assert attachments[0].kind == "user-attachments"
     assert attachments[2].owner == "NJUWallSpider"
     assert attachments[2].kind == "repo-assets"
+
+
+def test_extract_attachments_new_file_form():
+    """GitHub 新格式：/user-attachments/files/<id>/<文件名>（PDF 等文件常用）。"""
+    attachments = S.extract_attachments(FILE_ATT)
+    assert len(attachments) == 1
+    assert attachments[0].url == FILE_ATT
+    assert attachments[0].kind == "user-attachments"
+    assert attachments[0].asset_id == "33752003"
+    assert attachments[0].filename_hint == "Wolsey.-.Integer.Programming.pdf"
+
+
+def test_extract_attachments_inside_markdown_link():
+    """附件链接通常被包在 [文件名](url) 里，不能把结尾的 ) 一起吃进去。"""
+    body = f"[Wolsey]({FILE_ATT})\n[{ATT1}]({ATT1})"
+    attachments = S.extract_attachments(body)
+    assert [a.url for a in attachments] == [FILE_ATT, ATT1]
+    assert not any(a.url.endswith(")") for a in attachments)
+
+
+def test_extract_attachments_percent_encoded_filename():
+    url = "https://github.com/user-attachments/files/42/%E6%9C%9F%E6%9C%AB%E8%AF%95%E5%8D%B7.pdf"
+    attachments = S.extract_attachments(url)
+    assert len(attachments) == 1
+    assert attachments[0].asset_id == "42"
+    assert attachments[0].filename_hint == "期末试卷.pdf"
+
+
+def test_filename_from_response_uses_url_or_hint():
+    headers = email.message.Message()
+    assert A._filename_from_response(headers, FILE_ATT, "33752003") == "Wolsey.-.Integer.Programming.pdf"
+    # 重定向后 URL 里没有文件名时，用链接自带的 hint 兜底
+    assert A._filename_from_response(headers, "https://objects.githubusercontent.com/abc/123", "123", "笔记.pdf") == "笔记.pdf"
+    assert A._filename_from_response(headers, "https://objects.githubusercontent.com/abc/123", "123") == "attachment-123"
 
 
 def test_ignored_external_links_only_inside_attachment_section():

@@ -72,9 +72,13 @@
 - 以正则 `<!--\s*ie-contribution:v1\s*(\{.*?\})\s*-->`（`re.S`）提取 JSON；**取最后一个匹配**。
 - JSON 之后出现的内容忽略；JSON 内允许多余空白。
 - 若 Issue 正文没有该标记 → 不是投稿 Issue，所有工作流直接忽略（不评论、不贴标签）。
-- 附件 = 正文中所有形如 `https://github.com/user-attachments/assets/<id>` 与
-  `https://github.com/<owner>/<repo>/assets/<id>` 的链接（按出现顺序，去重）。
+- 附件 = 正文中所有形如
+  `https://github.com/user-attachments/assets/<id>`（图片）、
+  `https://github.com/user-attachments/files/<数字 id>/<文件名>`（PDF 等文件，2025 年起 GitHub 使用此格式）、
+  `https://github.com/<owner>/<repo>/assets/<id>`（旧格式）
+  的链接（按出现顺序，去重）。
   其他域名一律不下载，只在预览里提示「忽略外部链接」。
+  注意：GitHub 的附件链接通常包在 `[文件名](链接)` 里，解析时不能把结尾的 `)` 吃进 URL。
 
 ## 3. 元数据字段
 

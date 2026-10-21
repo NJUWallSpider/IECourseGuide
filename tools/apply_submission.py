@@ -161,6 +161,7 @@ def download_attachment(
     asset_id: str = "",
     max_bytes: int = MAX_ATTACHMENT_BYTES,
     timeout: int = DEFAULT_TIMEOUT,
+    name_hint: str = "",
 ) -> tuple[bytes, str]:
     """下载一枚 GitHub 附件，返回 ``(bytes, filename)``。"""
 
@@ -196,7 +197,9 @@ def download_attachment(
                     )
                 chunks.append(chunk)
             data = b"".join(chunks)
-            filename = _filename_from_response(response.headers, final_url, asset_id)
+            filename = _filename_from_response(
+                response.headers, final_url, asset_id, name_hint
+            )
     except SubmissionError:
         raise
     except urllib.error.HTTPError as exc:
@@ -214,7 +217,9 @@ def download_attachment(
     return data, filename
 
 
-def _filename_from_response(headers, final_url: str, asset_id: str) -> str:
+def _filename_from_response(
+    headers, final_url: str, asset_id: str, name_hint: str = ""
+) -> str:
     disposition = headers.get("Content-Disposition", "") or ""
     name = ""
     match = re.search(r"filename\*\s*=\s*UTF-8''([^;\s]+)", disposition, re.I)
@@ -232,6 +237,11 @@ def _filename_from_response(headers, final_url: str, asset_id: str) -> str:
         base = unquote(urlsplit(final_url).path.rsplit("/", 1)[-1])
         if base and "." in base:
             name = base
+    if not name and name_hint:
+        # /user-attachments/files/<id>/<文件名> 链接自带的文件名（下载重定向后可能丢失）
+        name = name_hint
+        if "%" in name:
+            name = unquote(name)
     if not name:
         name = f"attachment-{asset_id or 'file'}"
     return name
@@ -754,7 +764,10 @@ def _load_attachment_payloads(
     for attachment in attachments:
         try:
             data, filename = download_attachment(
-                attachment.url, token=token, asset_id=attachment.asset_id
+                attachment.url,
+                token=token,
+                asset_id=attachment.asset_id,
+                name_hint=attachment.filename_hint,
             )
         except SubmissionError as exc:
             # 部分 user-attachments 链接不接受 Bearer token（会 404/403），
@@ -767,7 +780,10 @@ def _load_attachment_payloads(
                     }
                 )
                 data, filename = download_attachment(
-                    attachment.url, token="", asset_id=attachment.asset_id
+                    attachment.url,
+                    token="",
+                    asset_id=attachment.asset_id,
+                    name_hint=attachment.filename_hint,
                 )
             else:
                 raise
