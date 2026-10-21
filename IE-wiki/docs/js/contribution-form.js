@@ -894,7 +894,8 @@
       course: data.course,
       category: data.kind === 'new-course' ? data.category : '',
       title: data.title,
-      display_name: data.kind === 'material' ? (data.displayName || data.title) : '',
+      // 留空时交给后端用原文件名，不默认填标题（否则页面显示成投稿标题）
+      display_name: data.kind === 'material' ? data.displayName : '',
       section: data.kind === 'append' ? data.section : '',
       notes: data.notes,
       links: data.links,
