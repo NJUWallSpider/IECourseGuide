@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{#
+  站内投稿入口的全局配置（见 .github/contribution-schema.md 第 7 节）：
+  - repo：Issue 提交目标仓库，来自 mkdocs.yml 的 extra.contribution_repo；
+  - siteRoot：按当前页面计算的「提交修改/」相对 URL（MkDocs url 过滤器），
+    保证在 /IECourseGuide/ 这类子路径部署下也能正确跳转。
+
+  只覆盖 extrahead 块，comments.html / 主题其它块保持原样。
+#}
+{% block extrahead %}
+  {{ super() }}
+  <script>
+    window.IE_CONTRIB = {
+      repo: "{{ config.extra.contribution_repo | default('NJUWallSpider/IECourseGuide', true) }}",
+      siteRoot: "{{ '提交修改/' | url }}"
+    };
+  </script>
+{% endblock %}

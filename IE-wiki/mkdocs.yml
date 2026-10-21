@@ -34,6 +34,8 @@ theme:
     repo: fontawesome/brands/github
 
 markdown_extensions:
+  - admonition
+  - pymdownx.details
   - attr_list
   - md_in_html
   - footnotes
@@ -50,6 +52,8 @@ plugins:
       minify_html: true
   
 extra:
+  # 「提交修改」页生成 Issue 时使用的目标仓库（.github/contribution-schema.md 第 7 节）
+  contribution_repo: NJUWallSpider/IECourseGuide
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/NJUWallSpider/IECourseGuide
@@ -59,6 +63,10 @@ extra:
 
 extra_css:
   - css/custom.css
+
+extra_javascript:
+  # 全站右下角「投稿 / 纠错」悬浮入口
+  - js/contribution-entry.js
   
 nav:
   - 前言: "index.md"
@@ -66,6 +74,7 @@ nav:
     - Git: 必学工具/Git.md
     - Markdown: 必学工具/Markdown.md
   - 贡献指南: "贡献指南/contribution_tutorial.md"
+  - 提交修改: "提交修改/index.md"
   # - 思政军体课:
   #   - political/index.md
   #   - 形势与政策 Ⅰ: political/situation_policy1/index.md

@@ -114,6 +114,477 @@ html .md-footer-meta.md-typeset a:is(:focus,:hover) {
 .md-copyright {
     font-size: .55rem;
 }
+
+/* ==========================================================================
+   站内投稿入口（.github/contribution-schema.md 第 7 节）
+   1) .ie-fab            全站右下角悬浮按钮「✍️ 投稿 / 纠错」
+   2) .ie-contribution-card / .ie-*   /提交修改/ 页的表单样式
+   3) .ie-home-entry     首页入口卡片
+   颜色全部走 Material CSS 变量，自动适配 default / slate 两种配色。
+   ========================================================================== */
+
+/* ---------- 全站悬浮按钮 ---------- */
+.ie-fab {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    z-index: 20; /* 高于页脚，低于搜索/对话框等 Material 浮层 */
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border-radius: 999px;
+    background: var(--md-primary-fg-color);
+    color: var(--md-primary-bg-color) !important;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.2;
+    text-decoration: none !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, .28);
+    transition: transform .15s ease, box-shadow .15s ease, opacity .2s ease, visibility .2s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.ie-fab:hover,
+.ie-fab:focus-visible {
+    color: var(--md-primary-bg-color) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 7px 20px rgba(0, 0, 0, .34);
+}
+
+.ie-fab-icon {
+    font-size: 16px;
+    line-height: 1;
+}
+
+/* 滚动到 Giscus 评论区附近时隐藏，避免挡住评论 */
+.ie-fab--hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(150%);
+}
+
+/* 移动端缩成圆形，只留图标 */
+@media screen and (max-width: 59.9375em) {
+    .ie-fab {
+        right: 12px;
+        bottom: 12px;
+        width: 48px;
+        height: 48px;
+        padding: 0;
+        justify-content: center;
+        border-radius: 50%;
+    }
+
+    .ie-fab-text {
+        display: none;
+    }
+
+    .ie-fab-icon {
+        font-size: 20px;
+    }
+}
+
+/* 打印时隐藏 */
+@media print {
+    .ie-fab {
+        display: none !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ie-fab,
+    .ie-kind-card,
+    .ie-btn,
+    .ie-replacement {
+        transition: none !important;
+    }
+
+    .ie-fab:hover,
+    .ie-fab:focus-visible {
+        transform: none;
+    }
+}
+
+/* ---------- 投稿页：说明与类型卡片 ---------- */
+.ie-contribution-card {
+    margin: 1rem 0 1.5rem;
+}
+
+.ie-contribution-card [hidden],
+.ie-form [hidden] {
+    display: none !important;
+}
+
+.ie-form-lead {
+    margin: .6rem 0 .2rem;
+    font-weight: 600;
+}
+
+.ie-req {
+    color: #c62828;
+    font-weight: 700;
+}
+
+[data-md-color-scheme="slate"] .ie-req {
+    color: #ff8a80;
+}
+
+.ie-kind-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: .5rem;
+    margin: .6rem 0 1.2rem;
+}
+
+@media screen and (max-width: 59.9375em) {
+    .ie-kind-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.ie-kind-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    padding: 10px 12px;
+    border: 1.5px solid var(--md-default-fg-color--lightest);
+    border-radius: 8px;
+    background: var(--md-default-bg-color);
+    color: var(--md-default-fg-color);
+    font: inherit;
+    font-size: 13px;
+    line-height: 1.35;
+    text-align: left;
+    cursor: pointer;
+    transition: border-color .15s ease, background-color .15s ease, transform .15s ease;
+}
+
+.ie-kind-card:hover,
+.ie-kind-card:focus-visible {
+    border-color: var(--md-primary-fg-color);
+    transform: translateY(-1px);
+    outline: none;
+}
+
+.ie-kind-card.is-active {
+    border-color: var(--md-primary-fg-color);
+    background: var(--md-primary-fg-color);
+    color: var(--md-primary-bg-color);
+}
+
+.ie-kind-emoji {
+    font-size: 18px;
+    line-height: 1.1;
+}
+
+.ie-kind-title {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.ie-kind-desc {
+    font-size: 12px;
+    opacity: .75;
+}
+
+.ie-kind-card.is-active .ie-kind-desc {
+    opacity: .92;
+}
+
+/* ---------- 投稿页：表单控件 ---------- */
+.ie-form {
+    display: grid;
+    gap: 14px;
+    margin-top: .4rem;
+}
+
+.ie-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.ie-field > label {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.ie-form input[type="text"],
+.ie-form select,
+.ie-form textarea {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--md-default-fg-color--lightest);
+    border-radius: 6px;
+    background: var(--md-default-bg-color);
+    color: var(--md-default-fg-color);
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+.ie-form select {
+    cursor: pointer;
+}
+
+.ie-form textarea {
+    min-height: 4.5rem;
+    resize: vertical;
+}
+
+.ie-form input[type="text"]:focus,
+.ie-form select:focus,
+.ie-form textarea:focus {
+    border-color: var(--md-primary-fg-color);
+    outline: 2px solid var(--md-primary-fg-color);
+    outline-offset: 0;
+}
+
+#ie-content,
+[data-ie-old],
+[data-ie-new] {
+    font-family: var(--md-code-font-family, monospace);
+    font-size: 13px;
+}
+
+.ie-hint {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.45;
+    opacity: .76;
+}
+
+.ie-hint code {
+    font-size: inherit;
+}
+
+.ie-check {
+    display: flex;
+    gap: 7px;
+    align-items: flex-start;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    line-height: 1.45;
+    cursor: pointer;
+}
+
+.ie-check input[type="checkbox"] {
+    margin: 3px 0 0;
+    width: 15px;
+    height: 15px;
+    flex: none;
+    accent-color: var(--md-primary-fg-color);
+}
+
+/* ---------- 投稿页：替换组 ---------- */
+.ie-replacements {
+    display: grid;
+    gap: 10px;
+}
+
+.ie-replacement {
+    display: grid;
+    gap: 5px;
+    padding: 10px 12px;
+    border: 1px dashed var(--md-default-fg-color--lightest);
+    border-radius: 7px;
+    background: var(--md-code-bg-color);
+}
+
+.ie-replacement-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.ie-replacement-no {
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.ie-sublabel {
+    font-size: 12px;
+    opacity: .8;
+}
+
+/* ---------- 投稿页：按钮 / 提示 / 预览 ---------- */
+.ie-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: .2rem;
+}
+
+.ie-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 9px 14px;
+    border: 1px solid var(--md-default-fg-color--lightest);
+    border-radius: 6px;
+    background: var(--md-default-bg-color);
+    color: var(--md-default-fg-color);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.2;
+    text-decoration: none !important;
+    cursor: pointer;
+    transition: background-color .15s ease, border-color .15s ease, transform .15s ease;
+}
+
+.ie-btn:hover,
+.ie-btn:focus-visible {
+    border-color: var(--md-primary-fg-color);
+    color: var(--md-default-fg-color);
+    transform: translateY(-1px);
+    outline: none;
+}
+
+.ie-btn-primary {
+    border-color: var(--md-primary-fg-color);
+    background: var(--md-primary-fg-color);
+    color: var(--md-primary-bg-color) !important;
+}
+
+.ie-btn-primary:hover,
+.ie-btn-primary:focus-visible {
+    color: var(--md-primary-bg-color) !important;
+    filter: brightness(1.08);
+}
+
+.ie-btn-small {
+    padding: 5px 10px;
+    font-size: 12px;
+}
+
+.ie-btn-danger {
+    border-color: #c62828;
+    color: #c62828;
+}
+
+[data-md-color-scheme="slate"] .ie-btn-danger {
+    border-color: #ff8a80;
+    color: #ff8a80;
+}
+
+.ie-errors {
+    padding: 10px 12px;
+    border-left: 4px solid #c62828;
+    border-radius: 4px;
+    background: rgba(198, 40, 40, .09);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.ie-errors ul {
+    margin: 6px 0 0;
+    padding-left: 1.2em;
+}
+
+.ie-status {
+    min-height: 1.4em;
+    margin: .2rem 0 0;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.ie-status-ok {
+    color: #2e7d32;
+}
+
+.ie-status-warn {
+    color: #b26a00;
+}
+
+[data-md-color-scheme="slate"] .ie-status-ok {
+    color: #81c784;
+}
+
+[data-md-color-scheme="slate"] .ie-status-warn {
+    color: #ffb74d;
+}
+
+.ie-preview-wrap {
+    margin-top: .3rem;
+    border: 1px solid var(--md-default-fg-color--lightest);
+    border-radius: 7px;
+    overflow: hidden;
+}
+
+.ie-preview-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 7px 12px;
+    background: var(--md-code-bg-color);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.ie-preview {
+    margin: 0;
+    padding: 12px;
+    max-height: 22rem;
+    overflow: auto;
+    background: var(--md-default-bg-color) !important;
+    color: var(--md-default-fg-color) !important;
+    font-family: var(--md-code-font-family, monospace);
+    font-size: 12px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    word-break: break-word;
+    box-shadow: none !important;
+}
+
+/* ---------- 首页入口卡片 ---------- */
+.ie-home-entry {
+    margin: 1.2rem 0 1.6rem;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--md-primary-fg-color);
+    border-left-width: 5px;
+    border-radius: 8px;
+    background: var(--md-code-bg-color);
+}
+
+.ie-home-entry-head {
+    margin: 0 0 .35rem;
+    font-size: 1.05em;
+    font-weight: 700;
+}
+
+.ie-home-entry p {
+    margin: .35rem 0;
+}
+
+.ie-home-entry-btn {
+    display: inline-block;
+    padding: 7px 14px;
+    border-radius: 6px;
+    background: var(--md-primary-fg-color);
+    color: var(--md-primary-bg-color) !important;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none !important;
+}
+
+.ie-home-entry-btn:hover,
+.ie-home-entry-btn:focus-visible {
+    filter: brightness(1.08);
+    color: var(--md-primary-bg-color) !important;
+}
+
+.ie-home-entry-alt {
+    margin-left: .6rem;
+    font-size: 13px;
+}
   
   
   

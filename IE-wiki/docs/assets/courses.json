@@ -1,0 +1,198 @@
+[
+  {
+    "category": "必学工具",
+    "name": "Git",
+    "md_path": "必学工具/Git.md",
+    "url": "必学工具/Git/",
+    "in_nav": true
+  },
+  {
+    "category": "必学工具",
+    "name": "Markdown",
+    "md_path": "必学工具/Markdown.md",
+    "url": "必学工具/Markdown/",
+    "in_nav": true
+  },
+  {
+    "category": "数理基础课",
+    "name": "微积分Ⅰ",
+    "md_path": "数理基础课/微积分1/index.md",
+    "url": "数理基础课/微积分1/",
+    "in_nav": true
+  },
+  {
+    "category": "数理基础课",
+    "name": "微积分ⅠⅠ",
+    "md_path": "数理基础课/微积分2/index.md",
+    "url": "数理基础课/微积分2/",
+    "in_nav": true
+  },
+  {
+    "category": "数理基础课",
+    "name": "线性代数",
+    "md_path": "数理基础课/线性代数/index.md",
+    "url": "数理基础课/线性代数/",
+    "in_nav": true
+  },
+  {
+    "category": "专业核心课",
+    "name": "运筹学Ⅰ",
+    "md_path": "专业核心课/运筹学Ⅰ/index.md",
+    "url": "专业核心课/运筹学Ⅰ/",
+    "in_nav": true
+  },
+  {
+    "category": "专业核心课",
+    "name": "数据结构与算法设计",
+    "md_path": "专业核心课/数据结构与算法设计/index.md",
+    "url": "专业核心课/数据结构与算法设计/",
+    "in_nav": true
+  },
+  {
+    "category": "专业核心课",
+    "name": "概率论",
+    "md_path": "专业核心课/概率论/index.md",
+    "url": "专业核心课/概率论/",
+    "in_nav": true
+  },
+  {
+    "category": "专业核心课",
+    "name": "管理学",
+    "md_path": "专业核心课/管理学/index.md",
+    "url": "专业核心课/管理学/",
+    "in_nav": true
+  },
+  {
+    "category": "专业核心课",
+    "name": "应用统计Ⅰ",
+    "md_path": "专业核心课/应用统计Ⅰ/index.md",
+    "url": "专业核心课/应用统计Ⅰ/",
+    "in_nav": true
+  },
+  {
+    "category": "专业核心课",
+    "name": "运筹学Ⅱ",
+    "md_path": "专业核心课/运筹学Ⅱ/index.md",
+    "url": "专业核心课/运筹学Ⅱ/",
+    "in_nav": true
+  },
+  {
+    "category": "专业核心课",
+    "name": "离散优化算法",
+    "md_path": "专业核心课/离散优化算法/index.md",
+    "url": "专业核心课/离散优化算法/",
+    "in_nav": true
+  },
+  {
+    "category": "专业核心课",
+    "name": "基础工业工程",
+    "md_path": "专业核心课/基础工业工程/index.md",
+    "url": "专业核心课/基础工业工程/",
+    "in_nav": true
+  },
+  {
+    "category": "专业核心课",
+    "name": "人工智能",
+    "md_path": "专业核心课/人工智能/index.md",
+    "url": "专业核心课/人工智能/",
+    "in_nav": true
+  },
+  {
+    "category": "专业核心课",
+    "name": "数据挖掘",
+    "md_path": "专业核心课/数据挖掘/index.md",
+    "url": "专业核心课/数据挖掘/",
+    "in_nav": true
+  },
+  {
+    "category": "专业核心课",
+    "name": "工程经济学",
+    "md_path": "专业核心课/工程经济学/index.md",
+    "url": "专业核心课/工程经济学/",
+    "in_nav": true
+  },
+  {
+    "category": "专业核心课",
+    "name": "制造与服务系统分析",
+    "md_path": "专业核心课/制造与服务系统分析/index.md",
+    "url": "专业核心课/制造与服务系统分析/",
+    "in_nav": true
+  },
+  {
+    "category": "专业选修课",
+    "name": "数值分析",
+    "md_path": "专业选修课/数值分析/index.md",
+    "url": "专业选修课/数值分析/",
+    "in_nav": true
+  },
+  {
+    "category": "专业选修课",
+    "name": "随机过程",
+    "md_path": "专业选修课/随机过程/index.md",
+    "url": "专业选修课/随机过程/",
+    "in_nav": true
+  },
+  {
+    "category": "跨专业课",
+    "name": "离散数学",
+    "md_path": "跨专业课/离散数学/index.md",
+    "url": "跨专业课/离散数学/",
+    "in_nav": true
+  },
+  {
+    "category": "跨专业课",
+    "name": "计算机系统基础",
+    "md_path": "跨专业课/计算机系统基础/index.md",
+    "url": "跨专业课/计算机系统基础/",
+    "in_nav": true
+  },
+  {
+    "category": "跨专业课",
+    "name": "计算机网络",
+    "md_path": "跨专业课/计算机网络/index.md",
+    "url": "跨专业课/计算机网络/",
+    "in_nav": true
+  },
+  {
+    "category": "跨专业课",
+    "name": "数值最优化",
+    "md_path": "跨专业课/数值最优化/index.md",
+    "url": "跨专业课/数值最优化/",
+    "in_nav": true
+  },
+  {
+    "category": "跨专业课",
+    "name": "Rust程序设计语言",
+    "md_path": "跨专业课/Rust程序设计语言/index.md",
+    "url": "跨专业课/Rust程序设计语言/",
+    "in_nav": true
+  },
+  {
+    "category": "跨专业课",
+    "name": "组合数学",
+    "md_path": "跨专业课/组合数学/index.md",
+    "url": "跨专业课/组合数学/",
+    "in_nav": true
+  },
+  {
+    "category": "跨专业课",
+    "name": "面向计算思维的问题求解",
+    "md_path": "跨专业课/面向计算思维的问题求解/index.md",
+    "url": "跨专业课/面向计算思维的问题求解/",
+    "in_nav": true
+  },
+  {
+    "category": "其他页面",
+    "name": "Github",
+    "md_path": "必学工具/Github.md",
+    "url": "必学工具/Github/",
+    "in_nav": false
+  },
+  {
+    "category": "其他页面",
+    "name": "Latex",
+    "md_path": "必学工具/Latex.md",
+    "url": "必学工具/Latex/",
+    "in_nav": false
+  }
+]
