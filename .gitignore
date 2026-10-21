@@ -1,1 +1,8 @@
 IE-wiki/site/
+IE-wiki/site-frontend/
+.venv/
+.build/
+pip-ephem-wheel-cache-*/
+__pycache__/
+.pytest_cache/
+mkdocs_*/

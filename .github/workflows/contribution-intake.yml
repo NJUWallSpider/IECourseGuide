@@ -1,0 +1,169 @@
+name: 投稿校验与预览 / contribution-intake
+
+# 契约见 .github/contribution-schema.md 第 6.1 节。
+# Issue 创建 / 编辑后：dry-run 解析投稿 → 贴（或更新）一条预览评论 → 打状态标签。
+
+on:
+  issues:
+    types: [opened, edited]
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: contribution-intake-${{ github.event.issue.number }}
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    name: Preview
+    # 不是 Pull Request；无投稿标记的 Issue 直接忽略；
+    # edited 事件只在正文仍含 ie-contribution:v1 时重新预览。
+    if: >-
+      github.event.issue.pull_request == null &&
+      (github.event.action == 'opened' ||
+       contains(github.event.issue.body, 'ie-contribution:v1'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: python -m pip install --quiet pyyaml
+
+      - name: Fetch issue and detect marker
+        id: meta
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/contrib"
+          gh issue view "$ISSUE_NUMBER" --json number,title,body,author,labels \
+            > "$RUNNER_TEMP/contrib/issue.json"
+          python - <<'PY'
+          import json
+          import os
+          import sys
+
+          sys.path.insert(0, "tools")
+          from submission import parse_metadata
+
+          path = os.path.join(os.environ["RUNNER_TEMP"], "contrib", "issue.json")
+          with open(path, encoding="utf-8") as handle:
+              issue = json.load(handle)
+          try:
+              has_metadata = parse_metadata(issue.get("body") or "") is not None
+          except Exception:  # JSON 损坏也按「有标记」处理，让预览评论报告错误
+              has_metadata = True
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
+              handle.write("has_metadata=%s\n" % ("true" if has_metadata else "false"))
+              handle.write("issue_number=%s\n" % issue.get("number"))
+          PY
+
+      - name: Dry-run preview
+        id: preview
+        if: steps.meta.outputs.has_metadata == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ steps.meta.outputs.issue_number }}
+        run: |
+          set -uo pipefail
+          status=0
+          python tools/apply_submission.py \
+            --repo-root . \
+            --issue "$RUNNER_TEMP/contrib/issue.json" \
+            --dry-run \
+            --json \
+            --token-env GITHUB_TOKEN \
+            > "$RUNNER_TEMP/contrib/result.json" \
+            2> "$RUNNER_TEMP/contrib/stderr.log" || status=$?
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+          if [ "$status" -eq 0 ]; then
+            echo "status=ok" >> "$GITHUB_OUTPUT"
+          else
+            echo "status=fail" >> "$GITHUB_OUTPUT"
+          fi
+          # 脚本崩溃时兜底，保证后续评论步骤总能读到合法的 JSON
+          if [ ! -s "$RUNNER_TEMP/contrib/result.json" ]; then
+            printf '%s\n' '{"ok": false, "issue": null, "kind": "", "title": "", "target": "", "changes": [], "attachments": [], "commit_message": "", "warnings": [], "errors": [{"code": "SCRIPT_CRASHED", "message": "预览脚本异常退出，请查看 workflow 日志"}]}' \
+              > "$RUNNER_TEMP/contrib/result.json"
+          fi
+          cat "$RUNNER_TEMP/contrib/stderr.log" || true
+
+      - name: Build preview comment JSON
+        if: steps.meta.outputs.has_metadata == 'true'
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+          import sys
+
+          sys.path.insert(0, "tools")
+          from apply_submission import render_preview_markdown
+
+          base = os.path.join(os.environ["RUNNER_TEMP"], "contrib")
+          with open(os.path.join(base, "result.json"), encoding="utf-8") as handle:
+              result = json.load(handle)
+          body = render_preview_markdown(result)
+          # 直接生成 gh api 的 payload 文件，避免把大段正文塞进 shell 变量
+          with open(os.path.join(base, "payload.json"), "w", encoding="utf-8") as handle:
+              json.dump({"body": body}, handle, ensure_ascii=False)
+          PY
+
+      - name: Upsert preview comment
+        if: steps.meta.outputs.has_metadata == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ steps.meta.outputs.issue_number }}
+        run: |
+          set -uo pipefail
+          # 用固定标记定位旧评论，编辑后更新而不是刷屏
+          existing="$(gh api \
+            "repos/$GITHUB_REPOSITORY/issues/$ISSUE_NUMBER/comments" \
+            --paginate \
+            --jq '.[] | select(.body | contains("<!-- ie-preview -->")) | .id' \
+            | head -n 1 || true)"
+          if [ -n "$existing" ]; then
+            gh api -X PATCH \
+              "repos/$GITHUB_REPOSITORY/issues/comments/$existing" \
+              --input "$RUNNER_TEMP/contrib/payload.json"
+          else
+            gh api -X POST \
+              "repos/$GITHUB_REPOSITORY/issues/$ISSUE_NUMBER/comments" \
+              --input "$RUNNER_TEMP/contrib/payload.json"
+          fi
+
+      - name: Update status labels
+        if: steps.meta.outputs.has_metadata == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ steps.meta.outputs.issue_number }}
+          PREVIEW_STATUS: ${{ steps.preview.outputs.status }}
+        run: |
+          set -uo pipefail
+          ensure_label() {
+            gh label create "$1" --color "$2" --description "$3" --force >/dev/null 2>&1 || \
+              gh api -X POST "repos/$GITHUB_REPOSITORY/labels" \
+                -f name="$1" -f color="$2" -f description="$3" >/dev/null 2>&1 || true
+          }
+          ensure_label "contribution:pending" "BFD4F2" "投稿待审核"
+          ensure_label "contribution:invalid" "D93F0B" "投稿格式或内容有误"
+          if [ "${PREVIEW_STATUS:-fail}" = "ok" ]; then
+            add="contribution:pending"
+            remove="contribution:invalid"
+          else
+            add="contribution:invalid"
+            remove="contribution:pending"
+          fi
+          gh issue edit "$ISSUE_NUMBER" --add-label "$add" >/dev/null 2>&1 || true
+          gh issue edit "$ISSUE_NUMBER" --remove-label "$remove" >/dev/null 2>&1 || true

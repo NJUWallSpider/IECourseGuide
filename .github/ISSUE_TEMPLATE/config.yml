@@ -1,0 +1,17 @@
+# 新建 Issue 时的引导（.github/contribution-schema.md 第 7 节）
+#
+# blank_issues_enabled 必须保持 true：站内「提交修改」页会用
+# issues/new?title=...&body=... 打开一个空白 Issue 并把结构化投稿正文预填进去，
+# 若禁用空白 Issue，这个入口会被 GitHub 拦掉。
+blank_issues_enabled: true
+
+contact_links:
+  - name: ✍️ 站内提交（推荐，无需 fork）
+    url: https://njuwallspider.github.io/IECourseGuide/%E6%8F%90%E4%BA%A4%E4%BF%AE%E6%94%B9/
+    about: 补充资料 / 增补介绍 / 纠错 / 新增课程页 —— 填表后自动生成结构化投稿，维护者审核后自动上线
+  - name: 📧 邮箱投稿
+    url: mailto:baihaozhen@smail.nju.edu.cn
+    about: 不想注册 GitHub？把 markdown 文件和资源发邮件给维护者
+  - name: 💬 使用问题 / 建议
+    url: https://github.com/NJUWallSpider/IECourseGuide/issues
+    about: 网站使用、内容建议等非材料类的讨论

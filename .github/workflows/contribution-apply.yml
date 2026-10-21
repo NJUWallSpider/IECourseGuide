@@ -1,0 +1,475 @@
+name: 投稿落库 / contribution-apply
+
+# 契约见 .github/contribution-schema.md 第 6.2 节。
+# 维护者评论 /批准（或 /approve、/通过）或给 Issue 加 contribution:approved 标签后，
+# 校验 → 落库 → 提交 main；main 受保护时自动走 PR。
+
+on:
+  issue_comment:
+    types: [created]
+  issues:
+    types: [labeled]
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: contribution-apply-${{ github.event.issue.number }}
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    name: Apply
+    if: >-
+      github.event.issue.pull_request == null &&
+      (
+        (github.event_name == 'issue_comment' &&
+         (contains(github.event.comment.body, '/批准') ||
+          contains(github.event.comment.body, '/approve') ||
+          contains(github.event.comment.body, '/通过') ||
+          contains(github.event.comment.body, '/拒绝') ||
+          contains(github.event.comment.body, '/reject'))) ||
+        (github.event_name == 'issues' &&
+         github.event.label.name == 'contribution:approved')
+      )
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    outputs:
+      applied: ${{ steps.publish.outputs.applied }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # 需要完整历史才能从浅克隆安全地 push / 建 PR
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: python -m pip install --quiet pyyaml
+
+      - name: Check maintainer permission
+        id: gate
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EVENT_NAME: ${{ github.event_name }}
+          COMMENT_ASSOC: ${{ github.event.comment.author_association }}
+          SENDER: ${{ github.event.sender.login }}
+        run: |
+          set -uo pipefail
+          authorized=false
+          if [ "$EVENT_NAME" = "issue_comment" ]; then
+            # 契约：只有 OWNER / MEMBER / COLLABORATOR 的评论才能批准或拒绝
+            case "${COMMENT_ASSOC:-NONE}" in
+              OWNER|MEMBER|COLLABORATOR) authorized=true ;;
+            esac
+          else
+            # issues labeled 事件没有 author_association，改用 API 校验操作者权限
+            permission="$(gh api "repos/$GITHUB_REPOSITORY/collaborators/$SENDER/permission" \
+              --jq '.permission' 2>/dev/null || true)"
+            case "$permission" in
+              admin|write|maintain) authorized=true ;;
+              *)
+                if gh api "repos/$GITHUB_REPOSITORY/collaborators/$SENDER" >/dev/null 2>&1; then
+                  authorized=true
+                elif [ -n "${GITHUB_REPOSITORY_OWNER:-}" ] && \
+                     gh api "orgs/$GITHUB_REPOSITORY_OWNER/members/$SENDER" >/dev/null 2>&1; then
+                  authorized=true
+                fi
+                ;;
+            esac
+          fi
+          echo "authorized=$authorized" >> "$GITHUB_OUTPUT"
+          if [ "$authorized" != "true" ]; then
+            echo "::notice::操作者没有维护者权限，忽略本次操作。"
+          fi
+
+      - name: Fetch issue and detect marker
+        id: meta
+        if: steps.gate.outputs.authorized == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/contrib"
+          gh issue view "$ISSUE_NUMBER" --json number,title,body,author,labels \
+            > "$RUNNER_TEMP/contrib/issue.json"
+          python - <<'PY'
+          import json
+          import os
+          import sys
+
+          sys.path.insert(0, "tools")
+          from submission import parse_metadata
+
+          path = os.path.join(os.environ["RUNNER_TEMP"], "contrib", "issue.json")
+          with open(path, encoding="utf-8") as handle:
+              issue = json.load(handle)
+          try:
+              has_metadata = parse_metadata(issue.get("body") or "") is not None
+          except Exception:
+              has_metadata = True
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
+              handle.write("has_metadata=%s\n" % ("true" if has_metadata else "false"))
+              handle.write("issue_number=%s\n" % issue.get("number"))
+          PY
+
+      - name: Parse command
+        id: command
+        if: steps.gate.outputs.authorized == 'true' && steps.meta.outputs.has_metadata == 'true'
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          import os
+
+          with open(os.environ["GITHUB_EVENT_PATH"], encoding="utf-8") as handle:
+              event = json.load(handle)
+          comment = (event.get("comment") or {}).get("body") or ""
+          label = (event.get("label") or {}).get("name") or ""
+          mode = "none"
+          if any(token in comment for token in ("/拒绝", "/reject")):
+              mode = "reject"
+          elif any(token in comment for token in ("/批准", "/approve", "/通过")):
+              mode = "approve"
+          elif label == "contribution:approved":
+              mode = "approve"
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
+              handle.write("mode=%s\n" % mode)
+          PY
+
+      - name: Check idempotency marker
+        id: idem
+        if: steps.command.outputs.mode == 'approve' || steps.command.outputs.mode == 'reject'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ steps.meta.outputs.issue_number }}
+        run: |
+          set -uo pipefail
+          applied_count="$(gh api \
+            "repos/$GITHUB_REPOSITORY/issues/$ISSUE_NUMBER/comments" \
+            --paginate \
+            --jq '.[] | select(.body | contains("<!-- ie-applied -->")) | .id' \
+            | wc -l | tr -d ' ')"
+          if [ "${applied_count:-0}" -gt 0 ]; then
+            echo "already_applied=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::Issue 已有 ie-applied 评论，跳过重复执行。"
+          else
+            echo "already_applied=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Ensure labels
+        if: >-
+          steps.gate.outputs.authorized == 'true' &&
+          steps.meta.outputs.has_metadata == 'true' &&
+          steps.idem.outputs.already_applied != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -uo pipefail
+          ensure_label() {
+            gh label create "$1" --color "$2" --description "$3" --force >/dev/null 2>&1 || \
+              gh api -X POST "repos/$GITHUB_REPOSITORY/labels" \
+                -f name="$1" -f color="$2" -f description="$3" >/dev/null 2>&1 || true
+          }
+          ensure_label "contribution:pending" "BFD4F2" "投稿待审核"
+          ensure_label "contribution:approved" "0E8A16" "投稿已批准，等待落库"
+          ensure_label "contribution:applied" "1D76DB" "投稿已收录"
+          ensure_label "contribution:invalid" "D93F0B" "投稿格式或内容有误"
+          ensure_label "contribution:rejected" "B60205" "投稿已拒绝"
+
+      - name: Handle reject command
+        if: >-
+          steps.command.outputs.mode == 'reject' &&
+          steps.idem.outputs.already_applied != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ steps.meta.outputs.issue_number }}
+        run: |
+          set -uo pipefail
+          cat > "$RUNNER_TEMP/contrib/rejected.md" <<'EOF'
+          <!-- ie-rejected -->
+          ❌ 该投稿已被维护者拒绝，本 Issue 将关闭。
+
+          如仍需提交，请修改后重新开一个新 Issue。
+          EOF
+          gh issue comment "$ISSUE_NUMBER" --body-file "$RUNNER_TEMP/contrib/rejected.md"
+          gh issue edit "$ISSUE_NUMBER" --add-label "contribution:rejected" >/dev/null 2>&1 || true
+          gh issue edit "$ISSUE_NUMBER" --remove-label "contribution:pending" >/dev/null 2>&1 || true
+          gh issue edit "$ISSUE_NUMBER" --remove-label "contribution:approved" >/dev/null 2>&1 || true
+          gh issue close "$ISSUE_NUMBER" --reason "not planned" >/dev/null 2>&1 || true
+
+      - name: Apply submission
+        id: apply
+        if: >-
+          steps.command.outputs.mode == 'approve' &&
+          steps.idem.outputs.already_applied != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -uo pipefail
+          status=0
+          python tools/apply_submission.py \
+            --repo-root . \
+            --issue "$RUNNER_TEMP/contrib/issue.json" \
+            --apply \
+            --json \
+            --token-env GITHUB_TOKEN \
+            > "$RUNNER_TEMP/contrib/result.json" \
+            2> "$RUNNER_TEMP/contrib/apply.log" || status=$?
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+          if [ ! -s "$RUNNER_TEMP/contrib/result.json" ]; then
+            printf '%s\n' '{"ok": false, "changes": [], "errors": [{"code": "SCRIPT_CRASHED", "message": "落库脚本异常退出，请查看 workflow 日志"}], "warnings": []}' \
+              > "$RUNNER_TEMP/contrib/result.json"
+          fi
+          python - <<'PY'
+          import json
+          import os
+
+          path = os.path.join(os.environ["RUNNER_TEMP"], "contrib", "result.json")
+          try:
+              with open(path, encoding="utf-8") as handle:
+                  result = json.load(handle)
+          except Exception:
+              result = {"ok": False, "changes": []}
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as handle:
+              handle.write(
+                  "has_changes=%s\n" % ("true" if result.get("changes") else "false")
+              )
+          PY
+          cat "$RUNNER_TEMP/contrib/apply.log" || true
+
+      - name: Commit and push
+        id: publish
+        if: >-
+          steps.command.outputs.mode == 'approve' &&
+          steps.idem.outputs.already_applied != 'true' &&
+          steps.apply.outputs.exit_code == '0' &&
+          steps.apply.outputs.has_changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ steps.meta.outputs.issue_number }}
+        run: |
+          set -uo pipefail
+          echo "applied=false" >> "$GITHUB_OUTPUT"
+          python - <<'PY'
+          import json
+          import os
+
+          base = os.path.join(os.environ["RUNNER_TEMP"], "contrib")
+          with open(os.path.join(base, "result.json"), encoding="utf-8") as handle:
+              result = json.load(handle)
+          with open(os.path.join(base, "commit_message.txt"), "w", encoding="utf-8") as handle:
+              handle.write((result.get("commit_message") or "").strip() + "\n")
+          with open(os.path.join(base, "pr_body.md"), "w", encoding="utf-8") as handle:
+              handle.write(
+                  "自动落库投稿 #%s：%s\n\n由 contribution-apply 工作流创建。\n"
+                  % (os.environ["ISSUE_NUMBER"], result.get("title", ""))
+              )
+          PY
+          commit_message="$(head -n 1 "$RUNNER_TEMP/contrib/commit_message.txt")"
+          if [ -z "$commit_message" ]; then
+            echo "publish_error=提交信息为空" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config core.quotepath false
+          git add -A
+          if git diff --cached --quiet; then
+            echo "publish_error=没有可提交的变更" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if ! git commit -F "$RUNNER_TEMP/contrib/commit_message.txt" \
+              > "$RUNNER_TEMP/contrib/commit.log" 2>&1; then
+            echo "publish_error=git commit 失败（详见 workflow 日志）" >> "$GITHUB_OUTPUT"
+            cat "$RUNNER_TEMP/contrib/commit.log" || true
+            exit 0
+          fi
+          sha="$(git rev-parse HEAD)"
+          if git push origin HEAD:main > "$RUNNER_TEMP/contrib/push.log" 2>&1; then
+            echo "mode=direct" >> "$GITHUB_OUTPUT"
+            echo "url=https://github.com/$GITHUB_REPOSITORY/commit/$sha" >> "$GITHUB_OUTPUT"
+            echo "applied=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # main 受保护 / 推送被拒 → 自动改走 PR
+          branch="contrib/issue-$ISSUE_NUMBER"
+          if ! git switch -c "$branch" >/dev/null 2>&1; then
+            if ! git switch "$branch" >/dev/null 2>&1; then
+              echo "publish_error=无法创建分支 $branch" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
+          if ! git push --force origin "HEAD:refs/heads/$branch" \
+              > "$RUNNER_TEMP/contrib/push_branch.log" 2>&1; then
+            echo "publish_error=推送分支 $branch 失败（main 受保护且无法创建分支）" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          pr_url="$(gh pr create --base main --head "$branch" \
+            --title "$commit_message" \
+            --body-file "$RUNNER_TEMP/contrib/pr_body.md" \
+            2> "$RUNNER_TEMP/contrib/pr.log" | tail -n 1 || true)"
+          if [ -z "$pr_url" ]; then
+            pr_url="$(gh pr list --head "$branch" --json url --jq '.[0].url' \
+              2>/dev/null | head -n 1 || true)"
+          fi
+          if [ -z "$pr_url" ]; then
+            echo "publish_error=创建 Pull Request 失败（仓库需允许 Actions 创建 PR）" >> "$GITHUB_OUTPUT"
+            cat "$RUNNER_TEMP/contrib/pr.log" || true
+            exit 0
+          fi
+          echo "mode=pr" >> "$GITHUB_OUTPUT"
+          echo "url=$pr_url" >> "$GITHUB_OUTPUT"
+          echo "applied=true" >> "$GITHUB_OUTPUT"
+
+      - name: Comment applied and close issue
+        if: steps.publish.outputs.applied == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ steps.meta.outputs.issue_number }}
+          PUBLISH_MODE: ${{ steps.publish.outputs.mode }}
+          PUBLISH_URL: ${{ steps.publish.outputs.url }}
+        run: |
+          set -uo pipefail
+          python - <<'PY'
+          import json
+          import os
+
+          base = os.path.join(os.environ["RUNNER_TEMP"], "contrib")
+          with open(os.path.join(base, "result.json"), encoding="utf-8") as handle:
+              result = json.load(handle)
+          mode = os.environ.get("PUBLISH_MODE", "direct")
+          url = os.environ.get("PUBLISH_URL", "")
+          if mode == "pr":
+              how = "已创建 Pull Request（main 受保护，合并后自动更新站点）"
+          else:
+              how = "已直接提交到 `main`"
+          lines = [
+              "<!-- ie-applied -->",
+              "✅ 已收录，感谢投稿！",
+              "",
+              "- 标题：%s" % result.get("title", ""),
+              "- 方式：%s" % how,
+              "- 链接：%s" % url,
+              "- 提交信息：`%s`" % result.get("commit_message", ""),
+              "",
+              "<sub>由 contribution-apply 自动生成。</sub>",
+              "",
+          ]
+          with open(os.path.join(base, "applied.md"), "w", encoding="utf-8") as handle:
+              handle.write("\n".join(lines))
+          PY
+          gh issue comment "$ISSUE_NUMBER" --body-file "$RUNNER_TEMP/contrib/applied.md"
+          gh issue edit "$ISSUE_NUMBER" --add-label "contribution:applied" >/dev/null 2>&1 || true
+          gh issue edit "$ISSUE_NUMBER" --remove-label "contribution:pending" >/dev/null 2>&1 || true
+          gh issue edit "$ISSUE_NUMBER" --remove-label "contribution:invalid" >/dev/null 2>&1 || true
+          gh issue close "$ISSUE_NUMBER" --reason "completed" >/dev/null 2>&1 || true
+
+      - name: Comment no-op
+        if: >-
+          steps.command.outputs.mode == 'approve' &&
+          steps.idem.outputs.already_applied != 'true' &&
+          steps.apply.outputs.exit_code == '0' &&
+          steps.apply.outputs.has_changes != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ steps.meta.outputs.issue_number }}
+        run: |
+          set -uo pipefail
+          cat > "$RUNNER_TEMP/contrib/noop.md" <<'EOF'
+          <!-- ie-noop -->
+          ℹ️ 本次没有产生需要落库的变更（附件或清单行已存在，或内容与页面一致），未做任何修改。Issue 保持打开。
+          EOF
+          gh issue comment "$ISSUE_NUMBER" --body-file "$RUNNER_TEMP/contrib/noop.md"
+
+      - name: Comment failure
+        if: >-
+          steps.command.outputs.mode == 'approve' &&
+          steps.idem.outputs.already_applied != 'true' &&
+          (steps.apply.outputs.exit_code != '0' ||
+           (steps.apply.outputs.exit_code == '0' &&
+            steps.apply.outputs.has_changes == 'true' &&
+            steps.publish.outputs.applied != 'true'))
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ steps.meta.outputs.issue_number }}
+          PUBLISH_ERROR: ${{ steps.publish.outputs.publish_error }}
+        run: |
+          set -uo pipefail
+          python - <<'PY'
+          import json
+          import os
+
+          base = os.path.join(os.environ["RUNNER_TEMP"], "contrib")
+          try:
+              with open(os.path.join(base, "result.json"), encoding="utf-8") as handle:
+                  result = json.load(handle)
+          except Exception:
+              result = {"errors": [{"code": "SCRIPT_CRASHED", "message": "落库脚本异常退出"}]}
+          lines = ["<!-- ie-error -->", "❌ 落库失败，Issue 保持打开。", ""]
+          publish_error = os.environ.get("PUBLISH_ERROR", "")
+          errors = result.get("errors") or []
+          if publish_error:
+              lines.extend(["### 错误", "", "- `PUBLISH_FAILED`：%s" % publish_error, ""])
+          elif errors:
+              lines.append("### 错误")
+              lines.append("")
+              for error in errors:
+                  lines.append("- `%s`：%s" % (error.get("code", ""), error.get("message", "")))
+              lines.append("")
+          warnings = result.get("warnings") or []
+          if warnings:
+              lines.append("### 提示")
+              lines.append("")
+              for warning in warnings:
+                  lines.append("- `%s` %s" % (warning.get("code", ""), warning.get("message", "")))
+              lines.append("")
+          lines.append("修正后重新批准即可重试；若内容有变，请先编辑 Issue 让预览更新。")
+          lines.append("")
+          with open(os.path.join(base, "failure.md"), "w", encoding="utf-8") as handle:
+              handle.write("\n".join(lines))
+          PY
+          payload="$RUNNER_TEMP/contrib/payload.json"
+          python - "$RUNNER_TEMP/contrib/failure.md" "$payload" <<'PY'
+          import json
+          import sys
+
+          with open(sys.argv[1], encoding="utf-8") as handle:
+              body = handle.read()
+          with open(sys.argv[2], "w", encoding="utf-8") as handle:
+              json.dump({"body": body}, handle, ensure_ascii=False)
+          PY
+          # 失败评论用固定标记更新，重试失败不刷屏
+          existing="$(gh api \
+            "repos/$GITHUB_REPOSITORY/issues/$ISSUE_NUMBER/comments" \
+            --paginate \
+            --jq '.[] | select(.body | contains("<!-- ie-error -->")) | .id' \
+            | head -n 1 || true)"
+          if [ -n "$existing" ]; then
+            gh api -X PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$existing" --input "$payload"
+          else
+            gh api -X POST "repos/$GITHUB_REPOSITORY/issues/$ISSUE_NUMBER/comments" --input "$payload"
+          fi
+          gh issue edit "$ISSUE_NUMBER" --add-label "contribution:invalid" >/dev/null 2>&1 || true
+          gh issue edit "$ISSUE_NUMBER" --remove-label "contribution:pending" >/dev/null 2>&1 || true
+
+  deploy:
+    name: Deploy site
+    needs: apply
+    # 用 GITHUB_TOKEN 推送的提交不会触发 push 事件，落库成功后在这里手动触发站点部署
+    if: needs.apply.outputs.applied == 'true'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/site-deploy.yml
