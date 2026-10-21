@@ -1028,6 +1028,8 @@
         showErrors([
           '浏览器拦截了新标签页。请点击「手动打开 GitHub 新建 Issue 页面」，或先「复制正文」再自己打开 GitHub 粘贴。'
         ]);
+        // 即使弹窗被拦截，也要显示「文件交接」，用户手动打开 GitHub 后仍需按清单拖入文件
+        finishSubmit(data);
       }
       return;
     }
