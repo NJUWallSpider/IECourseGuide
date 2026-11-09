@@ -36,3 +36,7 @@ abbrs:
 - [25 Fall 课程网盘](https://box.nju.edu.cn/d/3a064a9082e946bb9f9c/?p=%2F&mode=list)
 - [资源包](https://box.nju.edu.cn/seafhttp/f/302b3a22795145efa11f/?op=view)（本资源仅供学习参考，禁止用于任何商业用途，如侵权请联系删除）
 
+
+## 补充材料
+
+- [2024 年秋季期中试卷](2024.pdf)
